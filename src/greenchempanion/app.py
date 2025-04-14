@@ -17,7 +17,7 @@ input_smiles = st.text_input("Enter a SMILES:")
 if input_smiles == "VRMT":
     st.write("Easter Egg :o")
     st.image("../../assets/banner.png")
-if input_smiles == "miaw" or input_smiles in [n * "miaw" for n in range(10)]:
+if input_smiles == "miaw" or input_smiles in [n * "miaw" for n in range(1, 10)]:
     st.write("🐈😺😽🙀😿😸😹😾🐱😻😼🐈‍⬛COEUR")
 
 elif Chem.MolFromSmiles(input_smiles) is None:
