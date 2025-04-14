@@ -18,7 +18,7 @@ if input_smiles == "VRMT":
     st.write("Easter Egg :o")
     st.image("../../assets/banner.png")
 if input_smiles == "miaw" or input_smiles in [n * "miaw" for n in range(10)]:
-    st.write("🐈😺😽🙀😿😸😹😾🐱😻😼🐈‍⬛")
+    st.write("🐈😺😽🙀😿😸😹😾🐱😻😼🐈‍⬛COEUR")
 
 elif Chem.MolFromSmiles(input_smiles) is None:
     st.write("⚠️ Enter a valid SMILES format [e.g.: CCO]")
@@ -27,4 +27,5 @@ else:
     input_mol = Chem.MolFromSmiles(input_smiles)
     img = Draw.MolToImage(input_mol)
     st.image(img)
+
     
