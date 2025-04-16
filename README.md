@@ -3,13 +3,16 @@
 ![Coverage Status](assets/coverage-badge.svg)
 
 <h1 align="center">
-greenchempanion
+GreenChemPanion 🍃
 </h1>
 
 <br>
 
 
-Your interactive companion for Green Chemistry
+Practical Programming for Chemistry project by Marc A, Ralph G, Tais T, Valentine W. 🇱🇧 🇺🇸 🇫🇷 🇧🇪
+
+**GreenChemPanion**, or **GCP**, is a Python Package and Applet, based on RDKit and Streamlit, providing functions as well as an interface to compute
+Green Chemistry factors of a reaction or a molecule!
 
 ## 🔥 Usage
 
@@ -26,21 +29,27 @@ Short and sweet, but the real power lies in the detailed documentation.
 
 ## 👩‍💻 Installation
 
-Create a new environment, you may also give the environment a different name. 
+First start by installing the provided environment! Make sure your terminal is on the "src" folder of this package, where the environment files are stored.
 
+If you are on Windows 🪟:
 ```
-conda create -n greenchempanion python=3.10 
+conda env create -f env_win.yml
 ```
 
+If you are on Mac 🍏:
 ```
-conda activate greenchempanion
-(conda_env) $ pip install .
+conda env create -f env_mac.yml
+```
+
+Activate the environment
+```
+conda activate gcp
 ```
 
 If you need jupyter lab, install it 
 
 ```
-(greenchempanion) $ pip install jupyterlab
+(gcp) $ pip install jupyterlab
 ```
 
 
