@@ -23,17 +23,6 @@ def Atom_Count_With_H(mol: Mol) -> int:
 
 
 
-# TESTING Atom_Count_With_H FUNCTION
-
-#ethanol = Chem.MolFromSmiles("CCO")
-#print(ethanol.GetNumAtoms()) #Should be 3
-#print(Atom_Count_With_H(ethanol)) #Should be 9
-
-#benzene = Chem.MolFromSmiles("c1ccccc1")
-#print(benzene.GetNumAtoms()) #Should be 6
-#print(Atom_Count_With_H(benzene)) #Should be 12
-
-
 
 # Reaction Class
 
@@ -54,6 +43,7 @@ class Reaction:
     def __init__(self, reactants: Dict[Mol, int], products: Dict[Mol, int], main_product_index: int = 0):
         self.reactants = reactants
         self.products = products
+        self.main_product_index = main_product_index
 
         # Error handling
         if not reactants:
@@ -93,15 +83,55 @@ class Reaction:
         main_product_mass = Descriptors.MolWt(self.main_product) * self.products[self.main_product]
         return (main_product_mass / reactants_mass) * 100
 
- 
-        
-#TESTING Atom_Economy_X FUNCTIONS
 
-#methane = Chem.MolFromSmiles("C")
-#dioxygen = Chem.MolFromSmiles("O=O")
-#carbon_dioxide = Chem.MolFromSmiles("O=C=O")
-#water = Chem.MolFromSmiles("O")
 
-#methane_comb = Reaction({methane: 1, dioxygen:2}, {carbon_dioxide:1, water:2})
-#print(methane_comb.Atom_Economy_A()) # SHOULD BE 33.33%
-#print(methane_comb.Atom_Economy_M()) # SHOULD BE 55%
+# PMI and E-Factor Functions
+
+def compute_PMI(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float) -> float:
+    """
+    Computes the Process Mass Intensity (PMI) per kg of main product.
+    
+    (Total mass of chemical inputs / 1kg of product) * 100
+
+    Inputs:
+    - reaction: GCP Reaction object (with reactants, products, and main product index)
+    - extras: Dictionary containing solvents, extraction material and others, with their mass [in grams] per kg of product {Mol: float}
+    - prod_yield: Yield of main product (0 < float <= 1)
+    
+    Returns:
+    - PMI (float): total input mass (g) per 1 kg of product
+    """
+    from rdkit.Chem import Descriptors
+
+    # Error Handling
+    if not isinstance(reaction, Reaction):
+        raise TypeError("Expected a GCP Reaction object for 'reaction'")
+    if not isinstance(extras, dict):
+        raise TypeError("Expected a dictionary for 'extras'")
+    if not all(isinstance(k, Mol) and isinstance(v, (int, float)) for k, v in extras.items()):
+        raise TypeError("Keys in 'extras' must be RDKit Mol objects and values must be numbers")
+    if not isinstance(prod_yield, (int, float)) or not (0 < prod_yield <= 1):
+        raise ValueError("Yield must be a float between 0 (exclusive) and 1 (inclusive)")
+
+    # Main Product Molar Mass
+    product_mols = list(reaction.products.keys())
+    main_product = product_mols[reaction.main_product_index]
+    main_product_mw = Descriptors.MolWt(main_product)
+
+    # Moles for 1kg of product
+    mass_target = 1000.0  # g
+    mols_product_needed = mass_target / (prod_yield * main_product_mw)
+
+    # Reactants masses
+    total_input_mass = 0.0
+    for mol, coeff in reaction.reactants.items():
+        mw = Descriptors.MolWt(mol)
+        total_input_mass += coeff * mw * mols_product_needed
+
+    # Masses from Extras
+    total_input_mass += sum(extras.values())
+
+    # PMI Output
+    PMI = total_input_mass / mass_target
+    return PMI
+
