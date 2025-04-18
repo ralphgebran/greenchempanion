@@ -2,38 +2,39 @@ import streamlit as st
 import numpy
 from rdkit import Chem
 from rdkit.Chem import Draw
-from functions import Atom_Count_With_H, Reaction
+from functions import Atom_Count_With_H, Reaction, compute_PMI
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="🍃")
-st.title("🍃 GCP: GreenChemPanion") #TITLE
+st.title("GCP: GreenChemPanion") #TITLE
 st.write("Interactive Streamlit Applet showcasing the functions for GCP!") #TEXT
+st.markdown("---")
 
 # SMILES TO MOLECULE IMAGE DISPLAY
-st.header("😊 SMILES to Molecule Converter")
-M2S_smiles = st.text_input("Enter a SMILES:", key ="Mol2Smiles_input")
+with st.expander("😊 Smiles to Molecule Converter"):
+    M2S_smiles = st.text_input("Enter a SMILES:", key ="Mol2Smiles_input")
 
-if M2S_smiles:
+    if M2S_smiles:
 
-    #Developers Easter Egg
-    if M2S_smiles == "VRMT":
-        st.write("Easter Egg :o")
-        st.image("../../assets/banner.png")
+        #Developers Easter Egg
+        if M2S_smiles == "VRMT":
+            st.write("Easter Egg :o")
+            st.image("../../assets/banner.png")
+        if M2S_smiles == "miaw" or M2S_smiles in [n * "miaw" for n in range(1, 10)]:
+            st.write("🐈😺😽🙀😿😸😹😾🐱😻😼🐈‍⬛COEUR")
 
-    elif Chem.MolFromSmiles(M2S_smiles) is None:
-        st.write("⚠️ Enter a valid SMILES format [e.g.: CCO]")
+        elif Chem.MolFromSmiles(M2S_smiles) is None:
+            st.write("⚠️ Enter a valid SMILES format [e.g.: CCO]")
 
-    else:
-        input_mol = Chem.MolFromSmiles(M2S_smiles)
-        img = Draw.MolToImage(input_mol)
-        st.image(img)
+        else:
+            input_mol = Chem.MolFromSmiles(M2S_smiles)
+            img = Draw.MolToImage(input_mol)
+            st.image(img)
 
-        #Atom Counts
-        st.subheader("ATOM COUNTING 1️⃣2️⃣3️⃣")
-        st.write(f"Number of large atoms: {input_mol.GetNumAtoms()}")
-        st.write(f"Number of atoms (counting Hydrogens): {Atom_Count_With_H(input_mol)}")
+            #Atom Counts
+            st.subheader("ATOM COUNTING 1️⃣2️⃣3️⃣")
+            st.write(f"Number of large atoms: {input_mol.GetNumAtoms()}")
+            st.write(f"Number of atoms (counting Hydrogens): {Atom_Count_With_H(input_mol)}")
 
-#SEPARATOR IN STREAMLIT :O
-st.markdown("---")
 
 # REACTION SECTION
 st.header("💥 Enter a Reaction")
@@ -45,36 +46,62 @@ if "products" not in st.session_state:
     st.session_state.products = {}
 if "main_product_index" not in st.session_state:
     st.session_state.main_product_index = 0  # default to first product
+if "extras" not in st.session_state:
+    st.session_state.extras = {}
+if "prod_yield" not in st.session_state:
+    st.session_state.prod_yield = 1 # default to 100%
 
-st.subheader("🧪 Add a Molecule")
+#ADD MOLECULE EXPANDER
+with st.expander("🧪 Add a Molecule"):
 
-# SMILES input
-R_smiles = st.text_input("Enter a SMILES:", key ="ReactionSmiles_input")
+    # SMILES input
+    R_smiles = st.text_input("Enter a SMILES:", key ="ReactionSmiles_input")
 
-# Stoichiometry Coefficient input
-stoich = st.number_input("Stoichiometric Coefficient:", min_value=1, value=1, step=1)
+    # Stoichiometry Coefficient input
+    stoich = st.number_input("Stoichiometric Coefficient:", min_value=1, value=1, step=1)
 
-# Reaction or Product
-role = st.radio("Add as:", ["Reactant", "Product"], horizontal=True)
+    # Reaction or Product
+    role = st.radio("Add as:", ["Reactant", "Product"], horizontal=True)
 
-# Confirm button
-if st.button("➕ Add Molecule"):
-    R_mol = Chem.MolFromSmiles(R_smiles)
-    if R_mol:
-        if role == "Reactant":
-            st.session_state.reactants[R_mol] = stoich
-            st.success(f"Added reactant: {R_smiles} (x{stoich})")
+    # Confirm button
+    if st.button("➕ Add Molecule", key ="Molecule_Add"):
+        R_mol = Chem.MolFromSmiles(R_smiles)
+        if R_mol:
+            if role == "Reactant":
+                st.session_state.reactants[R_mol] = stoich
+                st.success(f"Added reactant: {R_smiles} (x{stoich})")
+            else:
+                st.session_state.products[R_mol] = stoich
+                st.success(f"Added product: {R_smiles} (x{stoich})")
         else:
-            st.session_state.products[R_mol] = stoich
-            st.success(f"Added product: {R_smiles} (x{stoich})")
-    else:
-        st.error("⚠️ Enter a valid SMILES format [e.g.: CCO]")
+            st.error("⚠️ Enter a valid SMILES format [e.g.: CCO]")
 
+#SOLVENTS EXPANDER
+with st.expander("🪣 Add extras (Yield, Solvents, Extraction material...)"):
+
+    # SMILES input
+    E_smiles = st.text_input("Enter a SMILES:", key ="ExtrasSmiles_input")
+
+    # Mass input
+    E_mass = st.number_input("Mass [in grams] per 1 kg of product:", min_value=0, value=1)
+
+    # Confirm button
+    if st.button("➕ Add Molecule", key ="Extras_Add"):
+        E_mol = Chem.MolFromSmiles(E_smiles)
+        if E_mol:
+            st.session_state.extras[E_mol] = E_mass
+            st.success(f"Added extra: {E_smiles} ({E_mass} g)")
+        else:
+            st.error("⚠️ Enter a valid SMILES format [e.g.: CCO]")
+    
+    #YIELD input
+    E_yield = st.number_input("Enter main product yield (%)", min_value=0.0, max_value=100.0, value =100.0, step = 0.01)
+    st.session_state.prod_yield = E_yield/100
 
 st.subheader("📦 Stored Reaction")
 
 # Reactants section
-st.write("### ⚗️ Reactants")
+st.write("##### ⚗️ Reactants")
 if st.session_state.reactants:
     for mol in list(st.session_state.reactants):  # make a copy of keys to allow deletion during loop
         qty = st.session_state.reactants[mol]
@@ -91,7 +118,7 @@ else:
     st.info("No reactants added.")
 
 # Products section
-st.write("### 🔬 Products")
+st.write("##### 🔬 Products")
 
 
 product_mols = list(st.session_state.products.keys())
@@ -127,8 +154,26 @@ if product_mols:
 else:
     st.info("No products added.")
 
-st.write("### 🧮 Atom Economy")
-# === Compute Atom Balance button only if both reactants and products are set ===
+    
+st.write("##### 🚰 Extras")
+st.markdown(f"Product yield: `{st.session_state.prod_yield * 100 } %` ")
+if st.session_state.extras:
+    for mol in list(st.session_state.extras):  # make a copy of keys to allow deletion during loop
+        qty = st.session_state.extras[mol]
+        col1, col2, col3 = st.columns([1, 3, 1])
+        with col1:
+            st.image(Draw.MolToImage(mol, size=(60, 60)))
+        with col2:
+            st.markdown(f"**SMILES:** `{Chem.MolToSmiles(mol)}`  \n**Mass (/kg product):** {qty} g")
+        with col3:
+            if st.button("❌", key=f"del_extra_{Chem.MolToSmiles(mol)}"):
+                del st.session_state.extras[mol]
+                st.rerun()
+else:
+    st.info("No extras added.")
+
+st.write("### 🧮 Compute Factors")
+# Compute Atom Balance button only if both reactants and products are set
 if st.session_state.reactants and st.session_state.products:
     if st.button("Compute Atom Economy"):
         # Retrieve from session
@@ -151,4 +196,30 @@ if st.session_state.reactants and st.session_state.products:
         st.success(f"⚖️ Atom Economy based on Molar Mass: **{atom_economy_m_result:.2f}%**")
         st.success(f"⚛️ Atom Economy based on Number of Atoms: **{atom_economy_a_result:.2f}%**")
 else:
-    st.info("Add at least one reactant and one product to compute atom economy.")
+    st.info("Add at least one reactant and one product to compute Atom Economy.")
+
+# Compute PMI button only if both reactants and products are set
+if st.session_state.reactants and st.session_state.products:
+    if st.button("Compute PMI"):
+        # Retrieve from session
+        PMI_reactants = st.session_state.reactants
+        PMI_products = st.session_state.products
+        PMI_main_index = st.session_state.main_product_index
+
+        PMI_extras = st.session_state.extras
+        PMI_yield = st.session_state.prod_yield
+
+        # Convert to list to get main product
+        product_mols = list(PMI_products.keys())
+        main_product = product_mols[PMI_main_index]
+
+        # Create the Reaction object
+        input_reaction = Reaction(reactants=PMI_reactants, products=PMI_products, main_product_index=PMI_main_index)
+
+        # Compute metrics (replace with your real logic)
+        PMI_result = compute_PMI(input_reaction, PMI_extras, PMI_yield)
+
+        # Display results
+        st.success(f"🅿️ PMI: **{PMI_result:.2f}**")
+else:
+    st.info("Add at least one reactant and one product to compute PMI.")
