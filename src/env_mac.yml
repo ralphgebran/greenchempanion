@@ -262,4 +262,5 @@ dependencies:
       - jupyterlab-widgets==3.0.14
       - pluggy==1.5.0
       - pytest==8.3.5
+      - streamlit-ketcher==0.0.1
 prefix: /opt/anaconda3/envs/gcp
