@@ -1,4 +1,4 @@
-from .functions import Atom_Count_With_H, Reaction, compute_PMI, Canonicalize_Smiles
+from .functions import Atom_Count_With_H, Reaction, compute_PMI, Canonicalize_Smiles, compute_E
 
 from rdkit import Chem
 from rdkit.Chem.rdchem import Mol
@@ -66,13 +66,19 @@ ether = Chem.MolFromSmiles("CCOCC")
 
 sn_reaction = Reaction({two_iodobutane:1, sodium_azide:1}, {two_azidobutane:1, sodium_iodide:1})
 sn_reaction_pmi = compute_PMI(sn_reaction, {acetone:17470, water:112000, ether:81800}, 0.9)
-
+sn_reaction_e= compute_E(sn_reaction, {acetone:17470, water:112000, ether:81800}, 0.9)
 
 def test_pmi_sn():
     result = sn_reaction_pmi
     expected = 214
     assert abs(result - expected) < 1e-1, f"test_pmi_sn failed: Expected output is 214 ; Actual output is {sn_reaction_pmi}"
 test_pmi_sn()
+
+def test_e_sn():
+    result = sn_reaction_e
+    expected = 212.9
+    assert abs(result - expected) < 1e-1, f"test_e_sn failed: Expected output is 212.9 ; Actual output is {sn_reaction_e}"
+test_e_sn()
 
 #Second Reaction
 butan_two_ol = Chem.MolFromSmiles("CCC(O)C")
@@ -82,10 +88,16 @@ cr_acid = Chem.MolFromSmiles("O[Cr](=O)O")
 
 ox_reaction = Reaction({butan_two_ol:1, cr_oxide:1}, {butan_two_one:1, cr_acid:1})
 ox_reaction_pmi = compute_PMI(ox_reaction, {ether:37500}, 0.9)
-
+ox_reaction_e = compute_E(ox_reaction, {ether:37500}, 0.9)
 
 def test_pmi_ox():
     result = ox_reaction_pmi
     expected = 40.2
     assert abs(result - expected) < 1e-1, f"test_pmi_ox failed: Expected output is 40.2 ; Actual output is {ox_reaction_pmi}"
 test_pmi_ox()
+
+def test_e_ox():
+    result = ox_reaction_e
+    expected = 39.1
+    assert abs(result - expected) < 1e-1, f"test_e_ox failed: Expected output is 39.1 ; Actual output is {ox_reaction_e}"
+test_e_ox()
