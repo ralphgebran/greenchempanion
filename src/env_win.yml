@@ -59,6 +59,7 @@ dependencies:
       - httpcore==1.0.7
       - httpx==0.28.1
       - idna==3.10
+      - iniconfig==2.1.0
       - ipykernel==6.29.5
       - ipython==8.34.0
       - ipywidgets==8.1.5
@@ -103,6 +104,7 @@ dependencies:
       - pathspec==0.12.1
       - pillow==11.1.0
       - platformdirs==4.3.7
+      - pluggy==1.5.0
       - plumbum==1.9.0
       - prometheus-client==0.21.1
       - prompt-toolkit==3.0.50
@@ -116,6 +118,7 @@ dependencies:
       - pydeck==0.9.1
       - pygments==2.19.1
       - pyparsing==3.2.3
+      - pytest==8.3.5
       - python-dateutil==2.9.0.post0
       - python-json-logger==3.3.0
       - pytz==2025.2
