@@ -2,7 +2,7 @@ import streamlit as st
 import numpy
 from rdkit import Chem
 from rdkit.Chem import Draw
-from functions import Atom_Count_With_H, Reaction, compute_PMI
+from .functions import Atom_Count_With_H, Reaction, compute_PMI, Canonicalize_Smiles
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="🍃")
 st.title("GCP: GreenChemPanion") #TITLE
@@ -14,7 +14,6 @@ with st.expander("😊 Smiles to Molecule Converter"):
     M2S_smiles = st.text_input("Enter a SMILES:", key ="Mol2Smiles_input")
 
     if M2S_smiles:
-
         #Developers Easter Egg
         if M2S_smiles == "VRMT":
             st.write("Easter Egg :o")
@@ -56,6 +55,7 @@ with st.expander("🧪 Add a Molecule"):
 
     # SMILES input
     R_smiles = st.text_input("Enter a SMILES:", key ="ReactionSmiles_input")
+    R_smiles = Canonicalize_Smiles(R_smiles)
 
     # Stoichiometry Coefficient input
     stoich = st.number_input("Stoichiometric Coefficient:", min_value=1, value=1, step=1)
@@ -66,13 +66,27 @@ with st.expander("🧪 Add a Molecule"):
     # Confirm button
     if st.button("➕ Add Molecule", key ="Molecule_Add"):
         R_mol = Chem.MolFromSmiles(R_smiles)
+        smiles_reactants = [Chem.MolToSmiles(mol) for mol in st.session_state.reactants]
+        smiles_products = [Chem.MolToSmiles(mol) for mol in st.session_state.products]
         if R_mol:
             if role == "Reactant":
-                st.session_state.reactants[R_mol] = stoich
-                st.success(f"Added reactant: {R_smiles} (x{stoich})")
+                if R_smiles in smiles_reactants:
+                    for mol in st.session_state.reactants:
+                        if Chem.MolToSmiles(mol) == R_smiles:
+                            corresponding_mol = mol
+                    st.session_state.reactants[corresponding_mol] += stoich
+                else:
+                    st.session_state.reactants[R_mol] = stoich
+                    st.success(f"Added reactant: {R_smiles} (x{stoich})")
             else:
-                st.session_state.products[R_mol] = stoich
-                st.success(f"Added product: {R_smiles} (x{stoich})")
+                if R_smiles in smiles_products:
+                    for mol in st.session_state.products:
+                        if Chem.MolToSmiles(mol) == R_smiles:
+                            corresponding_mol = mol
+                    st.session_state.products[corresponding_mol] += stoich
+                else:
+                    st.session_state.products[R_mol] = stoich
+                    st.success(f"Added a product: {R_smiles} (x{stoich})")
         else:
             st.error("⚠️ Enter a valid SMILES format [e.g.: CCO]")
 

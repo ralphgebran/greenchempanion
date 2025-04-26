@@ -50,10 +50,13 @@ doc = [
 [tool.hatch.version]
 path = "src/greenchempanion/__init__.py"
 
-[tool.pytest.ini_options]
-testpaths = [
-    "tests",
-]
+[tool.hatch.build.targets.wheel]
+packages = ["greenchempanion"]  
+
+#[tool.pytest.ini_options]
+#testpaths = [
+#    "tests",
+#]
 
 [tool.coverage.run]
 omit = [
@@ -64,3 +67,4 @@ omit = [
 exclude_also = [
     "if __name__ == .__main__.:",
 ]
+

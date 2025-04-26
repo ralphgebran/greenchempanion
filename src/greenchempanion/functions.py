@@ -17,12 +17,26 @@ def Atom_Count_With_H(mol: Mol) -> int:
     Returns:
     - int: Number of atoms
     """
-
+    
     H_mol = Chem.AddHs(mol)
     return H_mol.GetNumAtoms()
 
 
+# Canonicalize Smiles
 
+def Canonicalize_Smiles(smiles : str) -> str:
+    """
+    Returns the canonicalized SMILES for a given SMILES string.
+
+    Parameters:
+    - smile : A valid SMILES string representing a molecule.
+
+    Returns:
+    - str: The canonicalized SMILES string, or None if input is invalid
+    """
+    
+    mol = Chem.MolFromSmiles(smiles)
+    return Chem.MolToSmiles(mol)
 
 # Reaction Class
 

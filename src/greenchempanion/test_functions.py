@@ -1,4 +1,4 @@
-from functions import Atom_Count_With_H, Reaction, compute_PMI
+from .functions import Atom_Count_With_H, Reaction, compute_PMI
 
 from rdkit import Chem
 from rdkit.Chem.rdchem import Mol
