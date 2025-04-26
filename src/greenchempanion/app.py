@@ -34,6 +34,49 @@ with st.expander("😊 Smiles to Molecule Converter"):
             st.write(f"Number of large atoms: {input_mol.GetNumAtoms()}")
             st.write(f"Number of atoms (counting Hydrogens): {Atom_Count_With_H(input_mol)}")
 
+# CONVERT A MOLEUCLE DRAWING INTO ITS SMILES 
+from streamlit_ketcher import st_ketcher
+
+def draw_and_get_smiles() -> str:
+    """
+    Streamlit function to draw a molecule using Ketcher and return the SMILES string.
+    
+    Returns:
+        str: The canonical SMILES of the drawn molecule.
+    """
+
+    st.title("Draw Molecule and Get SMILES")
+    molecule = ""
+
+    ketcher_smiles = st_ketcher(molecule, height=600)
+
+    # Process the SMILES
+    if ketcher_smiles:
+        try:
+            mol = Chem.MolFromSmiles(ketcher_smiles)
+            if mol is not None:
+                canonical_smiles = Chem.MolToSmiles(mol, canonical=True, isomericSmiles=True)
+                st.subheader("Live SMILES from your drawing:")
+                st.success(canonical_smiles)
+                return canonical_smiles
+            else:
+                st.error("❌ Invalid molecule drawn! Please try again.")
+                return ""
+        except Exception as e:
+            st.error(f"⚠️ Error parsing molecule: {e}")
+            return ""
+    else:
+        st.info("🧪 Draw a molecule above to generate SMILES automatically!")
+        return ""
+
+with st.expander("✏️ Drawn Molecule to Smiles Converter"):
+    # Call the function from testfunctions.py
+    smiles_result = draw_and_get_smiles()
+
+    # Do something with smiles_result
+    if smiles_result:
+        st.write(f"The SMILES you generated is: {smiles_result}")
+
 
 # REACTION SECTION
 st.header("💥 Enter a Reaction")
