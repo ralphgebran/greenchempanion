@@ -55,7 +55,6 @@ with st.expander("🧪 Add a Molecule"):
 
     # SMILES input
     R_smiles = st.text_input("Enter a SMILES:", key ="ReactionSmiles_input")
-    R_smiles = Canonicalize_Smiles(R_smiles)
 
     # Stoichiometry Coefficient input
     stoich = st.number_input("Stoichiometric Coefficient:", min_value=1, value=1, step=1)
@@ -69,6 +68,7 @@ with st.expander("🧪 Add a Molecule"):
         smiles_reactants = [Chem.MolToSmiles(mol) for mol in st.session_state.reactants]
         smiles_products = [Chem.MolToSmiles(mol) for mol in st.session_state.products]
         if R_mol:
+            R_smiles = Canonicalize_Smiles(R_smiles)
             if role == "Reactant":
                 if R_smiles in smiles_reactants:
                     for mol in st.session_state.reactants:
