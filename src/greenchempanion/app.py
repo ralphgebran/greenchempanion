@@ -2,7 +2,7 @@ import streamlit as st
 import numpy
 from rdkit import Chem
 from rdkit.Chem import Draw
-from functions import Atom_Count_With_H, Reaction, compute_PMI, Canonicalize_Smiles
+from testfunction import Atom_Count_With_H, Reaction, compute_PMI, Canonicalize_Smiles
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="🍃")
 st.title("GCP: GreenChemPanion") #TITLE
@@ -75,6 +75,7 @@ with st.expander("🧪 Add a Molecule"):
                         if Chem.MolToSmiles(mol) == R_smiles:
                             corresponding_mol = mol
                     st.session_state.reactants[corresponding_mol] += stoich
+                    st.success(f"Added {stoich} more of reactant {R_smiles} ")
                 else:
                     st.session_state.reactants[R_mol] = stoich
                     st.success(f"Added reactant: {R_smiles} (x{stoich})")
@@ -84,11 +85,12 @@ with st.expander("🧪 Add a Molecule"):
                         if Chem.MolToSmiles(mol) == R_smiles:
                             corresponding_mol = mol
                     st.session_state.products[corresponding_mol] += stoich
+                    st.success(f"Added {stoich} more of product {R_smiles} ")
                 else:
                     st.session_state.products[R_mol] = stoich
                     st.success(f"Added a product: {R_smiles} (x{stoich})")
         else:
-            st.error("⚠️ Enter a valid SMILES format [e.g.: CCO]")
+            st.error("⚠️ Enter a valid SMILES format [e.g.: CCO]", icon="🚨")
 
 #SOLVENTS EXPANDER
 with st.expander("🪣 Add extras (Yield, Solvents, Extraction material...)"):
@@ -102,9 +104,18 @@ with st.expander("🪣 Add extras (Yield, Solvents, Extraction material...)"):
     # Confirm button
     if st.button("➕ Add Molecule", key ="Extras_Add"):
         E_mol = Chem.MolFromSmiles(E_smiles)
+        smiles_extras = [Chem.MolToSmiles(mol) for mol in st.session_state.extras]
         if E_mol:
-            st.session_state.extras[E_mol] = E_mass
-            st.success(f"Added extra: {E_smiles} ({E_mass} g)")
+            E_smiles = Canonicalize_Smiles(E_smiles)
+            if E_smiles in smiles_extras :
+                for mol in st.session_state.extras:
+                    if Chem.MolToSmiles(mol) == E_smiles:
+                        corresponding_mol= mol
+                st.session_state.extras[corresponding_mol] += E_mass
+                st.success(f"Added extra : another ({E_mass} g ) of {E_smiles}")
+            else :
+                st.session_state.extras[E_mol] = E_mass
+                st.success(f"Added extra: {E_smiles} ({E_mass} g)")
         else:
             st.error("⚠️ Enter a valid SMILES format [e.g.: CCO]")
     
@@ -185,7 +196,7 @@ if st.session_state.extras:
                 st.rerun()
 else:
     st.info("No extras added.")
-
+    
 st.write("### 🧮 Compute Factors")
 # Compute Atom Balance button only if both reactants and products are set
 if st.session_state.reactants and st.session_state.products:
