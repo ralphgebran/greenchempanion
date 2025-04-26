@@ -98,7 +98,6 @@ class Reaction:
         return (main_product_mass / reactants_mass) * 100
 
 
-
 # PMI and E-Factor Functions
 
 def compute_PMI(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float) -> float:
@@ -130,6 +129,7 @@ def compute_PMI(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float)
     # Main Product Molar Mass
     product_mols = list(reaction.products.keys())
     main_product = product_mols[reaction.main_product_index]
+    mp_coeff = reaction.products[main_product]
     main_product_mw = Descriptors.MolWt(main_product)
 
     # Moles for 1kg of product
@@ -140,7 +140,7 @@ def compute_PMI(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float)
     total_input_mass = 0.0
     for mol, coeff in reaction.reactants.items():
         mw = Descriptors.MolWt(mol)
-        total_input_mass += coeff * mw * mols_product_needed
+        total_input_mass += coeff * mw * mols_product_needed/mp_coeff
 
     # Masses from Extras
     total_input_mass += sum(extras.values())
@@ -149,3 +149,54 @@ def compute_PMI(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float)
     PMI = total_input_mass / mass_target
     return PMI
 
+
+def compute_E(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float) -> float:
+    """
+    Computes the Environmental Factor (E-Factor).
+
+    E-Factor = Waste per kilogram of product
+
+    Inputs:
+    - reaction: GCP Reaction object
+    - extras: Dictionary {Mol: float} for solvents, etc.
+    - prod_yield: Yield of main product (0 < float <= 1)
+    
+    Returns:
+    - E-Factor (float)
+    """
+    from rdkit.Chem import Descriptors
+
+    # Error Handling
+    if not isinstance(reaction, Reaction):
+        raise TypeError("Expected a GCP Reaction object for 'reaction'")
+    if not isinstance(extras, dict):
+        raise TypeError("Expected a dictionary for 'extras'")
+    if not all(isinstance(k, Mol) and isinstance(v, (int, float)) for k, v in extras.items()):
+        raise TypeError("Keys in 'extras' must be RDKit Mol objects and values must be numbers")
+    if not isinstance(prod_yield, (int, float)) or not (0 < prod_yield <= 1):
+        raise ValueError("Yield must be a float between 0 (exclusive) and 1 (inclusive)")
+
+    # Main Product Molar Mass
+    product_mols = list(reaction.products.keys())
+    main_product = product_mols[reaction.main_product_index]
+    mp_coeff = reaction.products[main_product]
+    main_product_mw = Descriptors.MolWt(main_product)
+
+    # Moles for 1kg of product
+    mass_target = 1000.0  # g
+    mols_product_needed = mass_target / (prod_yield * main_product_mw)
+
+    # Side Products masses
+    total_waste_mass = 0.0
+    for mol, coeff in reaction.products.items():
+        if mol == main_product :
+            continue
+        mw = Descriptors.MolWt(mol)
+        total_waste_mass += coeff * mw * mols_product_needed/mp_coeff
+
+    # Masses from Extras
+    total_waste_mass += sum(extras.values())
+
+    # PMI Output
+    E = total_waste_mass / mass_target
+    return E

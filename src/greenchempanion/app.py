@@ -2,7 +2,7 @@ import streamlit as st
 import numpy
 from rdkit import Chem
 from rdkit.Chem import Draw
-from functions import Atom_Count_With_H, Reaction, compute_PMI, Canonicalize_Smiles
+from functions import Atom_Count_With_H, Reaction, compute_PMI, Canonicalize_Smiles, compute_E
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="🍃")
 st.title("GCP: GreenChemPanion") #TITLE
@@ -265,7 +265,6 @@ if st.session_state.reactants and st.session_state.products:
         st.success(f"⚛️ Atom Economy based on Number of Atoms: **{atom_economy_a_result:.2f}%**")
 else:
     st.info("Add at least one reactant and one product to compute Atom Economy.")
-
 # Compute PMI button only if both reactants and products are set
 if st.session_state.reactants and st.session_state.products:
     if st.button("Compute PMI"):
@@ -291,3 +290,30 @@ if st.session_state.reactants and st.session_state.products:
         st.success(f"🅿️ PMI: **{PMI_result:.2f}**")
 else:
     st.info("Add at least one reactant and one product to compute PMI.")
+
+# Compute E factor button only if both reactants and products are set
+if st.session_state.reactants and st.session_state.products:
+    if st.button("Compute E"):
+        # Retrieve from session
+        E_reactants = st.session_state.reactants
+        E_products = st.session_state.products
+        E_main_index = st.session_state.main_product_index
+
+        E_extras = st.session_state.extras
+        E_yield = st.session_state.prod_yield
+
+        # Convert to list to get main product
+        product_mols = list(E_products.keys())
+        main_product = product_mols[E_main_index]
+
+        # Create the Reaction object
+        input_reaction = Reaction(reactants=E_reactants, products=E_products, main_product_index=E_main_index)
+
+        # Compute metrics (replace with your real logic)
+        E_result = compute_E(input_reaction, E_extras, E_yield)
+
+        # Display results
+        st.success(f"🚮 E: **{E_result:.2f}**")
+else:
+    st.info("Add at least one reactant and one product to compute E.")
+    

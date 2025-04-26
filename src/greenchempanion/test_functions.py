@@ -83,6 +83,7 @@ cr_acid = Chem.MolFromSmiles("O[Cr](=O)O")
 ox_reaction = Reaction({butan_two_ol:1, cr_oxide:1}, {butan_two_one:1, cr_acid:1})
 ox_reaction_pmi = compute_PMI(ox_reaction, {ether:37500}, 0.9)
 
+
 def test_pmi_ox():
     result = ox_reaction_pmi
     expected = 40.2
