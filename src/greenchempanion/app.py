@@ -5,7 +5,7 @@ from rdkit.Chem import Draw
 from functions import Atom_Count_With_H, Reaction, compute_PMI, Canonicalize_Smiles, compute_E
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="🍃")
-st.title("GCP: GreenChemPanion") #TITLE
+st.title("GCP: GreenChemPanion", anchor= False) #TITLE
 st.write("Interactive Streamlit Applet showcasing the functions for GCP!") #TEXT
 st.markdown("---")
 
@@ -30,7 +30,7 @@ with st.expander("😊 Smiles to Molecule Converter"):
             st.image(img)
 
             #Atom Counts
-            st.subheader("ATOM COUNTING 1️⃣2️⃣3️⃣")
+            st.subheader("ATOM COUNTING 1️⃣2️⃣3️⃣", anchor=False)
             st.write(f"Number of large atoms: {input_mol.GetNumAtoms()}")
             st.write(f"Number of atoms (counting Hydrogens): {Atom_Count_With_H(input_mol)}")
 
@@ -45,18 +45,27 @@ def draw_and_get_smiles() -> str:
         str: The canonical SMILES of the drawn molecule.
     """
 
-    st.title("Draw Molecule and Get SMILES")
+    st.title("Draw Molecule and Get SMILES", anchor= False)
     molecule = ""
+    # initialize a counter in session state
+    if "ketcher_key" not in st.session_state:
+        st.session_state.ketcher_key = 0
 
-    ketcher_smiles = st_ketcher(molecule, height=600)
+    # pass that counter into the component’s key
+    ketcher_smiles = st_ketcher(
+        molecule, 
+        height=600,
+        key=f"ketcher_{st.session_state.ketcher_key}")
+    
+    st.button("🔄 Reset drawing and Smiles", on_click=lambda: st.session_state.update({"ketcher_key": st.session_state.ketcher_key + 1}))
 
     # Process the SMILES
-    if ketcher_smiles:
+    while ketcher_smiles:
         try:
             mol = Chem.MolFromSmiles(ketcher_smiles)
             if mol is not None:
                 canonical_smiles = Chem.MolToSmiles(mol, canonical=True, isomericSmiles=True)
-                st.subheader("Live SMILES from your drawing:")
+                st.subheader("Live SMILES from your drawing:", anchor= False)
                 st.success(canonical_smiles)
                 return canonical_smiles
             else:
@@ -65,7 +74,7 @@ def draw_and_get_smiles() -> str:
         except Exception as e:
             st.error(f"⚠️ Error parsing molecule: {e}")
             return ""
-    else:
+    if not ketcher_smiles :
         st.info("🧪 Draw a molecule above to generate SMILES automatically!")
         return ""
 
@@ -76,10 +85,14 @@ with st.expander("✏️ Drawn Molecule to Smiles Converter"):
     # Do something with smiles_result
     if smiles_result:
         st.write(f"The SMILES you generated is: {smiles_result}")
+        #Atom Counts
+        st.subheader("ATOM COUNTING 1️⃣2️⃣3️⃣", anchor=False)
+        st.write(f"Number of large atoms: {Chem.MolFromSmiles(smiles_result).GetNumAtoms()}")
+        st.write(f"Number of atoms (counting Hydrogens): {Atom_Count_With_H(Chem.MolFromSmiles(smiles_result))}")
 
 
 # REACTION SECTION
-st.header("💥 Enter a Reaction")
+st.header("💥 Enter a Reaction", anchor="enter-reaction")
 
 # Storage values
 if "reactants" not in st.session_state:
@@ -166,7 +179,7 @@ with st.expander("🪣 Add extras (Yield, Solvents, Extraction material...)"):
     E_yield = st.number_input("Enter main product yield (%)", min_value=0.0, max_value=100.0, value =100.0, step = 0.01)
     st.session_state.prod_yield = E_yield/100
 
-st.subheader("📦 Stored Reaction")
+st.subheader("📦 Stored Reaction", anchor="stored-reaction")
 
 # Reactants section
 st.write("##### ⚗️ Reactants")
@@ -223,7 +236,8 @@ else:
     st.info("No products added.")
 
     
-st.write("##### 🚰 Extras")
+st.write(" ##### 🚰 Extras")
+            
 st.markdown(f"Product yield: `{st.session_state.prod_yield * 100 } %` ")
 if st.session_state.extras:
     for mol in list(st.session_state.extras):  # make a copy of keys to allow deletion during loop
@@ -240,7 +254,7 @@ if st.session_state.extras:
 else:
     st.info("No extras added.")
     
-st.write("### 🧮 Compute Factors")
+st.subheader("🧮 Compute Factors", anchor="compute-factors")
 # Compute Atom Balance button only if both reactants and products are set
 if st.session_state.reactants and st.session_state.products:
     if st.button("Compute Atom Economy"):
