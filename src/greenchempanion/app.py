@@ -2,7 +2,7 @@ import streamlit as st
 import numpy
 from rdkit import Chem
 from rdkit.Chem import Draw
-from testfunction import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E
+from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="🍃", layout= "wide")
 st.title("GCP: GreenChemPanion", anchor= False) #TITLE
@@ -270,6 +270,7 @@ with column1 :
         
 with column2:
     st.subheader("🧮 Compute Factors", anchor="compute-factors")
+    st.markdown('<div style="margin-top: 30px;"></div>', unsafe_allow_html=True)
     # Compute Atom Balance button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
         if st.button("Compute Atom Economy"):
@@ -285,32 +286,32 @@ with column2:
             # Create the Reaction object
             input_reaction = Reaction(reactants=R_reactants, products=R_products, main_product_index=R_main_index)
 
-        try:
-            atom_economy_m_result = input_reaction.Atom_Economy_M()
-            atom_economy_a_result = input_reaction.Atom_Economy_A()
-            st.success(f"⚖️ Atom Economy based on Molar Mass: **{atom_economy_m_result:.2f}%**")
-            st.success(f"⚛️ Atom Economy based on Number of Atoms: **{atom_economy_a_result:.2f}%**")
+            try:
+                atom_economy_m_result = input_reaction.Atom_Economy_M()
+                atom_economy_a_result = input_reaction.Atom_Economy_A()
+                st.success(f"⚖️ Atom Economy based on Molar Mass: **{atom_economy_m_result:.2f}%**")
+                st.success(f"⚛️ Atom Economy based on Number of Atoms: **{atom_economy_a_result:.2f}%**")
 
-        except ValueError as e:
-            st.error(f" {e}", icon="🚨")
+            except ValueError as e:
+                st.error(f" {e}", icon="🚨")
 
     else:
         st.markdown(
         """
         <div style="
-        background-color: rgba(188, 212, 180, 0.3);
-        color: #134e4a;
+        background-color: rgba(188, 212, 180, 0.3); 
+        color: #28a745;
         padding: 0.75rem 1rem;
         border-radius: 0.25rem;
-        font-size: 0.875rem;
-        margin-bottom: 1rem;
+        font-size: 20 px;
+        margin-bottom: 65px
         ">
         Add at least one reactant and one product to compute Atom Economy.
         </div>
         """,
         unsafe_allow_html=True,
     )
-        
+    
     # Compute PMI button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
         if st.button("Compute PMI"):
@@ -339,11 +340,11 @@ with column2:
         """
         <div style="
         background-color: rgba(188, 212, 180, 0.3);
-        color: #134e4a;
+        color: #28a745;
         padding: 0.75rem 1rem;
         border-radius: 0.25rem;
-        font-size: 0.875rem;
-        margin-bottom: 1rem;
+        font-size: 20 px;
+        margin-bottom: 105px
         ">
         Add at least one reactant and one product to compute PMI.
         </div>
@@ -379,11 +380,11 @@ with column2:
         """
         <div style="
         background-color: rgba(188, 212, 180, 0.3);
-        color: #134e4a;
+        color: #28a745;
         padding: 0.75rem 1rem;
         border-radius: 0.25rem;
-        font-size: 0.875rem;
-        margin-bottom: 1rem;
+        font-size: 20 px;
+        margin-bottom: 80px
         ">
         Add at least one reactant and one product to compute E.
         </div>
@@ -391,3 +392,48 @@ with column2:
         unsafe_allow_html=True,
     )
     
+
+
+
+st.header("🧑‍🔬 Your GCP Evaluation")
+
+# Define the green box style
+box_style = """
+    <div style="
+        border: 2px solid #28a745;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 10px;
+        background-color: #f9f9f9;
+        text-align: center;
+    ">
+        <h3 style="color: #28a745;">{title}</h3>
+        <p>{content}</p>
+    </div>
+"""
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown(box_style.format(title="♻️ E-Factor: Waste Efficiency", content="Content for Box 1"), unsafe_allow_html=True)
+
+with col2:
+    st.markdown(box_style.format(title="⚡ Additional Key Metrics", content="Content for Box 2"), unsafe_allow_html=True)
+
+
+col3, col4 = st.columns(2)
+
+with col3:
+    st.markdown(box_style.format(title="🌱 Solvent Quality Check", content="Content for Box 3"), unsafe_allow_html=True)
+
+with col4:
+    st.markdown(box_style.format(title="🧪 Average Atom Score", content="Content for Box 4"), unsafe_allow_html=True)
+
+
+col5, col6 = st.columns(2)
+
+with col5:
+    st.markdown(box_style.format(title="🌍 LogP: Environmental Profile", content="Content for Box 5"), unsafe_allow_html=True)
+
+with col6:
+    st.markdown(box_style.format(title="🧬 Structural Attributes Analysis", content="Content for Box 6"), unsafe_allow_html=True)
