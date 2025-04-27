@@ -11,7 +11,7 @@ def Atom_Count_With_H(mol: Mol) -> int:
     """
     Returns the total number of atoms for a given molecule, counting the H atoms
     
-    Parameters:
+    Inputs:
     - mol: RDKit Mol object
     
     Returns:
@@ -28,7 +28,7 @@ def canonicalize_smiles(smiles : str) -> str:
     """
     Returns the canonicalized SMILES for a given SMILES string.
 
-    Parameters:
+    Inputs:
     - smile : A valid SMILES string representing a molecule.
 
     Returns:

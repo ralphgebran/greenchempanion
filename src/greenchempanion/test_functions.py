@@ -1,4 +1,4 @@
-from .functions import Atom_Count_With_H, Reaction, compute_PMI, Canonicalize_Smiles, compute_E
+from .functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E
 
 from rdkit import Chem
 from rdkit.Chem.rdchem import Mol
@@ -25,8 +25,8 @@ test_atomcount_benzene()
 # TESTING canonicalization
 
 def test_canonicalization():
-    assert Canonicalize_Smiles("C(C)O") == "CCO", f"test_canonicalization failed: Expected output is CCO ; Actual output is {Canonicalize_Smiles('C(C)O')} "
-    assert Canonicalize_Smiles("OCC") == "CCO", f"test_canonicalization failed: Expected output is CCO ; Actual output is {Canonicalize_Smiles('OCC')} "
+    assert canonicalize_smiles("C(C)O") == "CCO", f"test_canonicalization failed: Expected output is CCO ; Actual output is {canonicalize_smiles('C(C)O')} "
+    assert canonicalize_smiles("OCC") == "CCO", f"test_canonicalization failed: Expected output is CCO ; Actual output is {canonicalize_smiles('OCC')} "
 
 
 #TESTING Atom_Economy_X FUNCTIONS
