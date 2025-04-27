@@ -97,6 +97,50 @@ class Reaction:
         main_product_mass = Descriptors.MolWt(self.main_product) * self.products[self.main_product]
         return (main_product_mass / reactants_mass) * 100
 
+    # Calculate the green score of a molecule
+    def calculate_molecule_average_green_score(self) -> float:
+        """
+        Calculate the average green score of a molecule based on its atoms.
+
+        Returns:
+            float: Average green score (0-100)
+        """
+
+        green_scores = {
+            # Very green elements
+            "C": 100, "H": 100, "O": 100, "N": 100, "P": 100, "S": 100,
+            
+            # Acceptable but less perfect
+            "B": 85, "Si": 85,
+            
+            # Risky halogens
+            "F": 60, "Cl": 60, "Br": 60, "I": 60,
+            
+            # Heavy metals and toxic elements
+            "Pb": 20, "Hg": 20, "Cd": 20, "As": 20, "Cr": 20, "Ni": 20, "Se": 20, "Tl": 20
+
+            # Default score for unknown elements is 50
+        }
+        for molecule in self.products.keys():
+            if molecule is None:
+                raise ValueError("Invalid SMILES.")
+            
+            atoms = molecule.GetAtoms()
+
+            if not atoms:
+                raise ValueError("No atoms found in the molecule.")
+            
+            total_score = 0
+            total_atoms = len(atoms)
+
+            for atom in atoms:
+                symbol = atom.GetSymbol().strip().capitalize()
+                total_score += green_scores.get(symbol, 50)
+
+            average_score = total_score / total_atoms
+
+            return average_score
+
 
 # PMI and E-Factor Functions
 
