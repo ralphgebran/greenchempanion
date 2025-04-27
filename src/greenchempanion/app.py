@@ -2,12 +2,24 @@ import streamlit as st
 import numpy
 from rdkit import Chem
 from rdkit.Chem import Draw
-from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E
+from testfunction import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E
 
-st.set_page_config(page_title="GreenChemPanion", page_icon="🍃")
+st.set_page_config(page_title="GreenChemPanion", page_icon="🍃", layout= "wide")
 st.title("GCP: GreenChemPanion", anchor= False) #TITLE
-st.write("Interactive Streamlit Applet showcasing the functions for GCP!") #TEXT
+st.write("Interactive Streamlit Applet showcasing the functions for GCP!") 
 st.markdown("---")
+
+st.markdown(
+    """
+    <style>
+      /* limit the main block container to 1100px instead of full width */
+      .block-container {
+        max-width: 1100px;
+      }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 # SMILES TO MOLECULE IMAGE DISPLAY
 with st.expander("😊 Smiles to Molecule Converter"):
@@ -179,155 +191,203 @@ with st.expander("🪣 Add extras (Yield, Solvents, Extraction material...)"):
     E_yield = st.number_input("Enter main product yield (%)", min_value=0.0, max_value=100.0, value =100.0, step = 0.01)
     st.session_state.prod_yield = E_yield/100
 
-st.subheader("📦 Stored Reaction", anchor="stored-reaction")
+column1, column2 = st.columns(2)
+with column1 :
+    st.subheader("📦 Stored Reaction", anchor="stored-reaction")
 
-# Reactants section
-st.write("##### ⚗️ Reactants")
-if st.session_state.reactants:
-    for mol in list(st.session_state.reactants):  # make a copy of keys to allow deletion during loop
-        qty = st.session_state.reactants[mol]
-        col1, col2, col3 = st.columns([1, 3, 1])
-        with col1:
-            st.image(Draw.MolToImage(mol, size=(60, 60)))
-        with col2:
-            st.markdown(f"**SMILES:** `{Chem.MolToSmiles(mol)}`  \n**Stoichiometric Coefficient:** {qty}")
-        with col3:
-            if st.button("❌", key=f"del_reactant_{Chem.MolToSmiles(mol)}"):
-                del st.session_state.reactants[mol]
-                st.rerun()
-else:
-    st.info("No reactants added.")
+    # Reactants section
+    st.write("##### ⚗️ Reactants")
+    if st.session_state.reactants:
+        for mol in list(st.session_state.reactants):  # make a copy of keys to allow deletion during loop
+            qty = st.session_state.reactants[mol]
+            col1, col2, col3 = st.columns([1, 3, 1])
+            with col1:
+                st.image(Draw.MolToImage(mol, size=(60, 60)))
+            with col2:
+                st.markdown(f"**SMILES:** `{Chem.MolToSmiles(mol)}`  \n**Stoichiometric Coefficient:** {qty}")
+            with col3:
+                if st.button("❌", key=f"del_reactant_{Chem.MolToSmiles(mol)}"):
+                    del st.session_state.reactants[mol]
+                    st.rerun()
+    else:
+        st.info("No reactants added.")
 
-# Products section
-st.write("##### 🔬 Products")
+    # Products section
+    st.write("##### 🔬 Products")
 
 
-product_mols = list(st.session_state.products.keys())
+    product_mols = list(st.session_state.products.keys())
 
-# Main Product selection
-if product_mols:
-    selected = st.radio(
-        "Select main product:",
-        options=range(len(product_mols)),
-        format_func=lambda i: f"{Chem.MolToSmiles(product_mols[i])} (x{st.session_state.products[product_mols[i]]})",
-        index=st.session_state.main_product_index,
-        key="main_product_selector"
+    # Main Product selection
+    if product_mols:
+        selected = st.radio(
+            "Select main product:",
+            options=range(len(product_mols)),
+            format_func=lambda i: f"{Chem.MolToSmiles(product_mols[i])} (x{st.session_state.products[product_mols[i]]})",
+            index=st.session_state.main_product_index,
+            key="main_product_selector"
+        )
+        st.session_state.main_product_index = selected
+
+        # Display each product with delete button and highlight if main
+        for i, mol in enumerate(product_mols):  # use fixed list for safe deletion
+            qty = st.session_state.products[mol]
+            img_col, txt_col, btn_col = st.columns([1, 3, 1])
+            with img_col:
+                st.image(Draw.MolToImage(mol, size=(60, 60)))
+            with txt_col:
+                st.markdown(f"**SMILES:** `{Chem.MolToSmiles(mol)}`  \n**Stoichiometric Coefficient:** {qty}")
+                if i == st.session_state.main_product_index:
+                    st.markdown("⭐ **Main product**")
+            with btn_col:
+                if st.button("❌", key=f"del_product_{Chem.MolToSmiles(mol)}"):
+                    del st.session_state.products[mol]
+                    # Adjust main index if necessary
+                    if st.session_state.main_product_index >= len(st.session_state.products):
+                        st.session_state.main_product_index = max(0, len(st.session_state.products) - 1)
+                    st.rerun()
+    else:
+        st.info("No products added.")
+
+        
+    st.write(" ##### 🚰 Extras")
+                
+    st.markdown(f"Product yield: `{st.session_state.prod_yield * 100 } %` ")
+    if st.session_state.extras:
+        for mol in list(st.session_state.extras):  # make a copy of keys to allow deletion during loop
+            qty = st.session_state.extras[mol]
+            col1, col2, col3 = st.columns([1, 3, 1])
+            with col1:
+                st.image(Draw.MolToImage(mol, size=(60, 60)))
+            with col2:
+                st.markdown(f"**SMILES:** `{Chem.MolToSmiles(mol)}`  \n**Mass (/kg product):** {qty} g")
+            with col3:
+                if st.button("❌", key=f"del_extra_{Chem.MolToSmiles(mol)}"):
+                    del st.session_state.extras[mol]
+                    st.rerun()
+    else:
+        st.info("No extras added.")
+        
+with column2:
+    st.subheader("🧮 Compute Factors", anchor="compute-factors")
+    # Compute Atom Balance button only if both reactants and products are set
+    if st.session_state.reactants and st.session_state.products:
+        if st.button("Compute Atom Economy"):
+            # Retrieve from session
+            R_reactants = st.session_state.reactants
+            R_products = st.session_state.products
+            R_main_index = st.session_state.main_product_index
+
+            # Convert to list to get main product
+            product_mols = list(R_products.keys())
+            main_product = product_mols[R_main_index]
+
+            # Create the Reaction object
+            input_reaction = Reaction(reactants=R_reactants, products=R_products, main_product_index=R_main_index)
+
+        try:
+            atom_economy_m_result = input_reaction.Atom_Economy_M()
+            atom_economy_a_result = input_reaction.Atom_Economy_A()
+            st.success(f"⚖️ Atom Economy based on Molar Mass: **{atom_economy_m_result:.2f}%**")
+            st.success(f"⚛️ Atom Economy based on Number of Atoms: **{atom_economy_a_result:.2f}%**")
+
+        except ValueError as e:
+            st.error(f" {e}", icon="🚨")
+
+    else:
+        st.markdown(
+        """
+        <div style="
+        background-color: rgba(188, 212, 180, 0.3);
+        color: #134e4a;
+        padding: 0.75rem 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+        ">
+        Add at least one reactant and one product to compute Atom Economy.
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
-    st.session_state.main_product_index = selected
+        
+    # Compute PMI button only if both reactants and products are set
+    if st.session_state.reactants and st.session_state.products:
+        if st.button("Compute PMI"):
+            # Retrieve from session
+            PMI_reactants = st.session_state.reactants
+            PMI_products = st.session_state.products
+            PMI_main_index = st.session_state.main_product_index
 
-    # Display each product with delete button and highlight if main
-    for i, mol in enumerate(product_mols):  # use fixed list for safe deletion
-        qty = st.session_state.products[mol]
-        col1, col2, col3 = st.columns([1, 3, 1])
-        with col1:
-            st.image(Draw.MolToImage(mol, size=(60, 60)))
-        with col2:
-            st.markdown(f"**SMILES:** `{Chem.MolToSmiles(mol)}`  \n**Stoichiometric Coefficient:** {qty}")
-            if i == st.session_state.main_product_index:
-                st.markdown("⭐ **Main product**")
-        with col3:
-            if st.button("❌", key=f"del_product_{Chem.MolToSmiles(mol)}"):
-                del st.session_state.products[mol]
-                # Adjust main index if necessary
-                if st.session_state.main_product_index >= len(st.session_state.products):
-                    st.session_state.main_product_index = max(0, len(st.session_state.products) - 1)
-                st.rerun()
-else:
-    st.info("No products added.")
+            PMI_extras = st.session_state.extras
+            PMI_yield = st.session_state.prod_yield
 
-    
-st.write(" ##### 🚰 Extras")
-            
-st.markdown(f"Product yield: `{st.session_state.prod_yield * 100 } %` ")
-if st.session_state.extras:
-    for mol in list(st.session_state.extras):  # make a copy of keys to allow deletion during loop
-        qty = st.session_state.extras[mol]
-        col1, col2, col3 = st.columns([1, 3, 1])
-        with col1:
-            st.image(Draw.MolToImage(mol, size=(60, 60)))
-        with col2:
-            st.markdown(f"**SMILES:** `{Chem.MolToSmiles(mol)}`  \n**Mass (/kg product):** {qty} g")
-        with col3:
-            if st.button("❌", key=f"del_extra_{Chem.MolToSmiles(mol)}"):
-                del st.session_state.extras[mol]
-                st.rerun()
-else:
-    st.info("No extras added.")
-    
-st.subheader("🧮 Compute Factors", anchor="compute-factors")
-# Compute Atom Balance button only if both reactants and products are set
-if st.session_state.reactants and st.session_state.products:
-    if st.button("Compute Atom Economy"):
-        # Retrieve from session
-        R_reactants = st.session_state.reactants
-        R_products = st.session_state.products
-        R_main_index = st.session_state.main_product_index
+            # Convert to list to get main product
+            product_mols = list(PMI_products.keys())
+            main_product = product_mols[PMI_main_index]
 
-        # Convert to list to get main product
-        product_mols = list(R_products.keys())
-        main_product = product_mols[R_main_index]
+            # Create the Reaction object
+            input_reaction = Reaction(reactants=PMI_reactants, products=PMI_products, main_product_index=PMI_main_index)
 
-        # Create the Reaction object
-        input_reaction = Reaction(reactants=R_reactants, products=R_products, main_product_index=R_main_index)
+            # Compute metrics (replace with your real logic)
+            PMI_result = compute_PMI(input_reaction, PMI_extras, PMI_yield)
 
-        # Compute metrics (replace with your real logic)
-        atom_economy_m_result = input_reaction.Atom_Economy_M()
-        atom_economy_a_result = input_reaction.Atom_Economy_A()
+            # Display results
+            st.success(f"🅿️ PMI: **{PMI_result:.2f}**")
+    else:
+        st.markdown(
+        """
+        <div style="
+        background-color: rgba(188, 212, 180, 0.3);
+        color: #134e4a;
+        padding: 0.75rem 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+        ">
+        Add at least one reactant and one product to compute PMI.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-        # Display results
-        st.success(f"⚖️ Atom Economy based on Molar Mass: **{atom_economy_m_result:.2f}%**")
-        st.success(f"⚛️ Atom Economy based on Number of Atoms: **{atom_economy_a_result:.2f}%**")
-else:
-    st.info("Add at least one reactant and one product to compute Atom Economy.")
-# Compute PMI button only if both reactants and products are set
-if st.session_state.reactants and st.session_state.products:
-    if st.button("Compute PMI"):
-        # Retrieve from session
-        PMI_reactants = st.session_state.reactants
-        PMI_products = st.session_state.products
-        PMI_main_index = st.session_state.main_product_index
+    # Compute E factor button only if both reactants and products are set
+    if st.session_state.reactants and st.session_state.products:
+        if st.button("Compute E"):
+            # Retrieve from session
+            E_reactants = st.session_state.reactants
+            E_products = st.session_state.products
+            E_main_index = st.session_state.main_product_index
 
-        PMI_extras = st.session_state.extras
-        PMI_yield = st.session_state.prod_yield
+            E_extras = st.session_state.extras
+            E_yield = st.session_state.prod_yield
 
-        # Convert to list to get main product
-        product_mols = list(PMI_products.keys())
-        main_product = product_mols[PMI_main_index]
+            # Convert to list to get main product
+            product_mols = list(E_products.keys())
+            main_product = product_mols[E_main_index]
 
-        # Create the Reaction object
-        input_reaction = Reaction(reactants=PMI_reactants, products=PMI_products, main_product_index=PMI_main_index)
+            # Create the Reaction object
+            input_reaction = Reaction(reactants=E_reactants, products=E_products, main_product_index=E_main_index)
 
-        # Compute metrics (replace with your real logic)
-        PMI_result = compute_PMI(input_reaction, PMI_extras, PMI_yield)
+            # Compute metrics (replace with your real logic)
+            E_result = compute_E(input_reaction, E_extras, E_yield)
 
-        # Display results
-        st.success(f"🅿️ PMI: **{PMI_result:.2f}**")
-else:
-    st.info("Add at least one reactant and one product to compute PMI.")
-
-# Compute E factor button only if both reactants and products are set
-if st.session_state.reactants and st.session_state.products:
-    if st.button("Compute E"):
-        # Retrieve from session
-        E_reactants = st.session_state.reactants
-        E_products = st.session_state.products
-        E_main_index = st.session_state.main_product_index
-
-        E_extras = st.session_state.extras
-        E_yield = st.session_state.prod_yield
-
-        # Convert to list to get main product
-        product_mols = list(E_products.keys())
-        main_product = product_mols[E_main_index]
-
-        # Create the Reaction object
-        input_reaction = Reaction(reactants=E_reactants, products=E_products, main_product_index=E_main_index)
-
-        # Compute metrics (replace with your real logic)
-        E_result = compute_E(input_reaction, E_extras, E_yield)
-
-        # Display results
-        st.success(f"🚮 E: **{E_result:.2f}**")
-else:
-    st.info("Add at least one reactant and one product to compute E.")
+            # Display results
+            st.success(f"🚮 E: **{E_result:.2f}**")
+    else:
+        st.markdown(
+        """
+        <div style="
+        background-color: rgba(188, 212, 180, 0.3);
+        color: #134e4a;
+        padding: 0.75rem 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+        ">
+        Add at least one reactant and one product to compute E.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     
