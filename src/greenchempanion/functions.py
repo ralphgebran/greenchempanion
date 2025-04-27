@@ -244,3 +244,69 @@ def compute_E(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float) -
     # PMI Output
     E = total_waste_mass / mass_target
     return E
+
+def get_solvent_score(extras : dict[Mol, float]) -> int:
+    """
+    Return the green score of a solvent based on predefined solvent green scores.
+
+    Inputs:
+        dict[Mol, float] : Extras Mol Object and mass       
+
+    Returns:
+        int: Green score out of 100 (default 50 if solvent is unknown)
+    """
+
+    solvent_green_scores = {
+        # Green solvents (score = 30)
+        "O": 30,
+        "CCO": 30,
+        "CC(=O)OCC": 30,
+        "CC1COCC1": 30,
+        "O=C=O": 30,
+        "CC(O)C": 30,
+        "CO": 30,
+
+        # Acceptable solvents (score = 70)
+        "CC#N": 70,
+        "CC(=O)C": 70,
+        "CCOCC": 70,
+        "ClCCCl": 70,
+        "Cc1ccccc1": 70,
+
+        # Bad solvents (score = 100)
+        "ClCCl": 100,
+        "ClC(Cl)Cl": 100,
+        "c1ccccc1": 100,
+        "ClC(Cl)(Cl)Cl": 100,
+        "CCCCCC": 100,
+        "CCCCC": 100
+    }
+
+    solvent_name = extras.MolToSmiles.keys().strip().lower()
+    return solvent_green_scores.get(solvent_name, 50) 
+
+"""
+if compute_PMI() <= 10:
+   pmi_penalty = 0
+elif 10 < compute_PMI() <= 50:
+    pmi_penalty = 30
+elif 50 < compute_PMI() <= 100:
+    pmi_penalty = 70
+elif compute_PMI() > 100:
+    pmi_penalty = 100
+
+if compute_E() <= 1:
+   E_factor_penalty = 0
+elif 1 < compute_E() <= 10:
+    E_factor_penalty = 10
+elif 10 < compute_E() <= 50:
+    E_factor_penalty = 50
+elif 50 < compute_E <= 100:
+    E_factor_penalty = 70
+elif compute_PMI() > 100:
+    E_factor_penalty = 100
+
+def grade_green_chemistry(smiles: str, solvent_name: str, product_mass: float, all_products_mass: float) -> int:
+    score = 100 - 0.1 * Reaction.calculate_molecule_average_green_score() - 0.25 * get_solvent_score() - 0.15 * Reaction.Atom_Economy_A() - 0.15 * pmi_penalty - 0.35 * E_factor_penalty
+    return score 
+"""
