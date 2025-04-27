@@ -24,7 +24,7 @@ def Atom_Count_With_H(mol: Mol) -> int:
 
 # Canonicalize Smiles
 
-def Canonicalize_Smiles(smiles : str) -> str:
+def canonicalize_smiles(smiles : str) -> str:
     """
     Returns the canonicalized SMILES for a given SMILES string.
 

@@ -2,7 +2,7 @@ import streamlit as st
 import numpy
 from rdkit import Chem
 from rdkit.Chem import Draw
-from functions import Atom_Count_With_H, Reaction, compute_PMI, Canonicalize_Smiles, compute_E
+from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="🍃")
 st.title("GCP: GreenChemPanion", anchor= False) #TITLE
@@ -124,7 +124,7 @@ with st.expander("🧪 Add a Molecule"):
         smiles_reactants = [Chem.MolToSmiles(mol) for mol in st.session_state.reactants]
         smiles_products = [Chem.MolToSmiles(mol) for mol in st.session_state.products]
         if R_mol:
-            R_smiles = Canonicalize_Smiles(R_smiles)
+            R_smiles = canonicalize_smiles(R_smiles)
             if role == "Reactant":
                 if R_smiles in smiles_reactants:
                     for mol in st.session_state.reactants:
@@ -162,7 +162,7 @@ with st.expander("🪣 Add extras (Yield, Solvents, Extraction material...)"):
         E_mol = Chem.MolFromSmiles(E_smiles)
         smiles_extras = [Chem.MolToSmiles(mol) for mol in st.session_state.extras]
         if E_mol:
-            E_smiles = Canonicalize_Smiles(E_smiles)
+            E_smiles = canonicalize_smiles(E_smiles)
             if E_smiles in smiles_extras :
                 for mol in st.session_state.extras:
                     if Chem.MolToSmiles(mol) == E_smiles:
