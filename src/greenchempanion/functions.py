@@ -355,34 +355,42 @@ def atoms_assessment(react: Reaction) -> tuple[str,str]:
 
 def structural_assessment(react: Reaction) -> tuple[str,str]:
     bad_smarts = {
-        "Carbon oxides " : ["O=C=O", "C#O" ],
-        "Nitro-"             : ["[N+](=O)[O-]", "O[N](=O)[O-]", "O=N[O-]", "[NX3+](=O)[O-,O]"],
-        "Azo-"               : ["N=N"],
-        "Dichloro-aromatic" : ["c([Cl,Br])c.*c([Cl,Br])c"]
+        "Carbon oxides":      ["O=C=O", "C#O"],
+        "Nitro-":             ["[N+](=O)[O-]", "O[N](=O)[O-]", "O=N[O-]", "[NX3+](=O)[O-,O]"],
+        "Azo-":               ["N=N"],
+        "Dichloro-aromatic":  ["c([Cl,Br])c.*c([Cl,Br])c"],
     }
-    
+
     heavy_chain_flag = False
-    bad_groups = set()
+    bad_groups      = set()
 
     for mol in react.products.keys():
         if sum(1 for a in mol.GetAtoms() if a.GetSymbol() != "H") > 10:
             heavy_chain_flag = True
 
         mol_fp = rdMolDescriptors.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)
-        
+
         for name, patterns in bad_smarts.items():
             for sm in patterns:
                 ref = Chem.MolFromSmarts(sm)
-                if not ref:
+                if ref is None:
                     continue
-                Chem.SanitizeMol(ref)
+
+                # guard 1: skip any SMARTS that can't be sanitized
+                try:
+                    Chem.SanitizeMol(ref)
+                except Exception:
+                    continue
 
                 if mol.HasSubstructMatch(ref):
                     bad_groups.add(name)
                     break
-                
-                ref_fp = rdMolDescriptors.GetMorganFingerprintAsBitVect(ref, radius=2, nBits=2048)
-                sim    = TanimotoSimilarity(ref_fp, mol_fp)
+                try:
+                    ref_fp = rdMolDescriptors.GetMorganFingerprintAsBitVect(ref, radius=2, nBits=2048)
+                    sim    = TanimotoSimilarity(ref_fp, mol_fp)
+                except Exception:
+                    continue
+
                 if sim > 0.15:
                     bad_groups.add(f"Similarity to {name}")
                     break
