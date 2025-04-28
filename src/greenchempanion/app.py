@@ -3,9 +3,8 @@ import numpy
 from rdkit import Chem
 from rdkit.Chem import Draw
 from rdkit.Chem import Descriptors
-from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E
+from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E 
 from functions import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, logP_assessment_molecule, atoms_assessment, structural_assessment
-
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="🍃", layout= "wide")
 st.title("GCP: GreenChemPanion", anchor= False) #TITLE

@@ -360,6 +360,7 @@ def structural_assessment(react: Reaction) -> tuple[str,str]:
         "Azo-"               : ["N=N"],
         "Dichloro-aromatic" : ["c([Cl,Br])c.*c([Cl,Br])c"]
     }
+    
     heavy_chain_flag = False
     bad_groups = set()
 
@@ -385,7 +386,7 @@ def structural_assessment(react: Reaction) -> tuple[str,str]:
                 if sim > 0.15:
                     bad_groups.add(f"Similarity to {name}")
                     break
-                
+
     issues = []
     if heavy_chain_flag:
         issues.append("Presence of long heavy-atom chain(s)")
