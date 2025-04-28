@@ -2,7 +2,10 @@ import streamlit as st
 import numpy
 from rdkit import Chem
 from rdkit.Chem import Draw
+from rdkit.Chem import Descriptors
 from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E
+from functions import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, logP_assessment_molecule, atoms_assessment, structural_assessment
+
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="🍃", layout= "wide")
 st.title("GCP: GreenChemPanion", anchor= False) #TITLE
@@ -273,19 +276,19 @@ with column2:
     st.markdown('<div style="margin-top: 30px;"></div>', unsafe_allow_html=True)
     # Compute Atom Balance button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
+        # Retrieve from session
+        R_reactants = st.session_state.reactants
+        R_products = st.session_state.products
+        R_main_index = st.session_state.main_product_index
+
+        # Convert to list to get main product
+        product_mols = list(R_products.keys())
+        main_product = product_mols[R_main_index]
+
+        # Create the Reaction object
+        input_reaction = Reaction(reactants=R_reactants, products=R_products, main_product_index=R_main_index)
+        
         if st.button("Compute Atom Economy"):
-            # Retrieve from session
-            R_reactants = st.session_state.reactants
-            R_products = st.session_state.products
-            R_main_index = st.session_state.main_product_index
-
-            # Convert to list to get main product
-            product_mols = list(R_products.keys())
-            main_product = product_mols[R_main_index]
-
-            # Create the Reaction object
-            input_reaction = Reaction(reactants=R_reactants, products=R_products, main_product_index=R_main_index)
-
             try:
                 atom_economy_m_result = input_reaction.Atom_Economy_M()
                 atom_economy_a_result = input_reaction.Atom_Economy_A()
@@ -314,26 +317,26 @@ with column2:
     
     # Compute PMI button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
+        # Retrieve from session
+        PMI_reactants = st.session_state.reactants
+        PMI_products = st.session_state.products
+        PMI_main_index = st.session_state.main_product_index
+
+        PMI_extras = st.session_state.extras
+        PMI_yield = st.session_state.prod_yield
+
+        # Convert to list to get main product
+        product_mols = list(PMI_products.keys())
+        main_product = product_mols[PMI_main_index]
+
+        # Create the Reaction object
+        input_reaction = Reaction(reactants=PMI_reactants, products=PMI_products, main_product_index=PMI_main_index)
+
+        # Compute metrics (replace with your real logic)
+        PMI_result = compute_PMI(input_reaction, PMI_extras, PMI_yield)
+
+        # Display results
         if st.button("Compute PMI"):
-            # Retrieve from session
-            PMI_reactants = st.session_state.reactants
-            PMI_products = st.session_state.products
-            PMI_main_index = st.session_state.main_product_index
-
-            PMI_extras = st.session_state.extras
-            PMI_yield = st.session_state.prod_yield
-
-            # Convert to list to get main product
-            product_mols = list(PMI_products.keys())
-            main_product = product_mols[PMI_main_index]
-
-            # Create the Reaction object
-            input_reaction = Reaction(reactants=PMI_reactants, products=PMI_products, main_product_index=PMI_main_index)
-
-            # Compute metrics (replace with your real logic)
-            PMI_result = compute_PMI(input_reaction, PMI_extras, PMI_yield)
-
-            # Display results
             st.success(f"🅿️ PMI: **{PMI_result:.2f}**")
     else:
         st.markdown(
@@ -354,7 +357,6 @@ with column2:
 
     # Compute E factor button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
-        if st.button("Compute E"):
             # Retrieve from session
             E_reactants = st.session_state.reactants
             E_products = st.session_state.products
@@ -374,7 +376,8 @@ with column2:
             E_result = compute_E(input_reaction, E_extras, E_yield)
 
             # Display results
-            st.success(f"🚮 E: **{E_result:.2f}**")
+            if st.button("Compute E"):
+                st.success(f"🚮 E: **{E_result:.2f}**")
     else:
         st.markdown(
         """
@@ -391,13 +394,10 @@ with column2:
         """,
         unsafe_allow_html=True,
     )
-    
 
 
+st.header("🧑‍🔬 Your GCP Evaluation", anchor="GCP_evaluation")
 
-st.header("🧑‍🔬 Your GCP Evaluation")
-
-# Define the green box style
 box_style = """
     <div style="
         border: 2px solid #28a745;
@@ -412,28 +412,102 @@ box_style = """
     </div>
 """
 
-col1, col2 = st.columns(2)
-
-with col1:
-    st.markdown(box_style.format(title="♻️ E-Factor: Waste Efficiency", content="Content for Box 1"), unsafe_allow_html=True)
-
-with col2:
-    st.markdown(box_style.format(title="⚡ Additional Key Metrics", content="Content for Box 2"), unsafe_allow_html=True)
 
 
-col3, col4 = st.columns(2)
+box_style_2 = """
+<div style="
+    border: 2px solid #28a745;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 10px;
+    background-color: {color};
+    text-align: center;
+">
+    <h3 style="color: #000000;">{title}</h3>
+    <p>{content}</p>
+</div>
+"""
 
-with col3:
-    st.markdown(box_style.format(title="🌱 Solvent Quality Check", content="Content for Box 3"), unsafe_allow_html=True)
+if st.session_state.reactants and st.session_state.products:
+    col1, col2 = st.columns(2)
 
-with col4:
-    st.markdown(box_style.format(title="🧪 Average Atom Score", content="Content for Box 4"), unsafe_allow_html=True)
+    with col1:
+        if st.session_state.extras:
+            solv_text, solv_color = get_solvent_info(st.session_state.extras)
+            st.markdown(box_style_2.format(title="🌱 Solvent Quality Check", content=solv_text, color=solv_color), unsafe_allow_html=True)
+        else:
+            st.markdown(box_style.format(title="🌱 Solvent Quality Check", content="Seems like no solvent was used, Nice Job!"), unsafe_allow_html=True)
 
+        Log_P = Descriptors.MolLogP(input_reaction.main_product)
+        log_text, log_color = logP_assessment_molecule(Log_P)
+        st.markdown(box_style_2.format(title="🌍 Main Product LogP", content=log_text, color=log_color), unsafe_allow_html=True)
 
-col5, col6 = st.columns(2)
+        a_ass_text, a_ass_color = atoms_assessment(input_reaction)
+        st.markdown(box_style_2.format(title="⚛️ Atom Assessment", content=a_ass_text, color=a_ass_color), unsafe_allow_html=True)
 
-with col5:
-    st.markdown(box_style.format(title="🌍 LogP: Environmental Profile", content="Content for Box 5"), unsafe_allow_html=True)
+        struct_text, struct_color = structural_assessment(input_reaction)
+        st.markdown(box_style_2.format(title="🧬 Structural Attributes Analysis", content=struct_text, color=struct_color), unsafe_allow_html=True)
 
-with col6:
-    st.markdown(box_style.format(title="🧬 Structural Attributes Analysis", content="Content for Box 6"), unsafe_allow_html=True)
+    with col2:
+        score_text, color = waste_efficiency(E_result)
+        st.markdown(box_style_2.format(title="♻️ E-Factor: Waste Efficiency", content=score_text, color=color), unsafe_allow_html=True)
+
+        pmi_text, pmi_color = PMI_assesment(PMI_result)
+        st.markdown(box_style_2.format(title="⚖️ PMI", content=pmi_text, color=pmi_color), unsafe_allow_html=True)
+
+        try:
+            atom_economy_m_result = input_reaction.Atom_Economy_M()
+            atom_economy_a_result = input_reaction.Atom_Economy_A()
+            ae_m_text, ae_m_color = Atom_ec_assesment(atom_economy_m_result)
+            ae_a_text, ae_a_color = Atom_ec_assesment(atom_economy_a_result)
+
+            html = f"""<div style="
+display: flex;
+border: 2px solid #28a745;
+border-radius: 10px;
+overflow: hidden;
+margin: 10px;
+">
+    <div style="
+        flex: 1;
+        background-color: {ae_m_color};
+        padding: 20px;
+        text-align: center;
+        border-right: 1px solid #000;
+    ">
+        <h4 style="margin:0; color:#000000;">⚗️ Atom Econ Molar Mass</h4>
+        <p style="margin:5px 0 0;">{ae_m_text}</p>
+    </div>
+    <div style="
+        flex: 1;
+        background-color: {ae_a_color};
+        padding: 20px;
+        text-align: center;
+    ">
+        <h4 style="margin:0; color:#000000;">🧪 Atom Econ nb Atoms</h4>
+        <p style="margin:5px 0 0;">{ae_a_text}</p>
+    </div>
+</div>"""
+            st.markdown(html, unsafe_allow_html=True)
+        except ValueError as e:
+            st.error(f"{e}", icon="🚨")
+
+else:
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.session_state.extras:
+            solv_text, solv_color = get_solvent_info(st.session_state.extras)
+            st.markdown(box_style_2.format(title="🌱 Solvent Quality Check", content=solv_text, color=solv_color), unsafe_allow_html=True)
+        else:
+            st.markdown(box_style.format(title="🌱 Solvent Quality Check", content="Seems like no solvent was used, Nice Job!"), unsafe_allow_html=True)
+            
+        st.markdown(box_style.format(title="🌍 Main Product LogP", content="Add Reaction to analyse"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="⚛️ Atom Assessment", content="Add Reaction to analyse"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="🧬 Structural Attributes Analysis", content="Add Reaction to analyse"), unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(box_style.format(title="♻️ E-Factor: Waste Efficiency", content="Add Reaction to analyse"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="⚖️ PMI", content="Add Reaction to analyse"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="⚗️ Atom Econ Molar Mass", content="Add Reaction to analyse"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="🧪 Atom Econ nb Atoms", content="Add Reaction to analyse"), unsafe_allow_html=True)

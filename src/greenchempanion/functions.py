@@ -2,8 +2,8 @@ from rdkit import Chem
 from rdkit.Chem.rdchem import Mol
 from rdkit.Chem import Descriptors
 from typing import Dict
-
-
+from rdkit.Chem import rdMolDescriptors
+from rdkit.DataStructs import TanimotoSimilarity
 
 #Atom count function that takes hydrogen atoms into account
 
@@ -11,7 +11,7 @@ def Atom_Count_With_H(mol: Mol) -> int:
     """
     Returns the total number of atoms for a given molecule, counting the H atoms
     
-    Inputs:
+    Parameters:
     - mol: RDKit Mol object
     
     Returns:
@@ -28,7 +28,7 @@ def canonicalize_smiles(smiles : str) -> str:
     """
     Returns the canonicalized SMILES for a given SMILES string.
 
-    Inputs:
+    Parameters:
     - smile : A valid SMILES string representing a molecule.
 
     Returns:
@@ -46,7 +46,7 @@ class Reaction:
 
     Attributes:
     - reactants (Dict[Mol, int]): Dictionary of RDKit Mol objects with their Stoichiometric Coefficients, representing the reactants.
-    - products (List[Mol]): Dictionary of RDKit Mol objects with their Stoichiometric Coefficients, representing the products.
+    - products (Dict[Mol, int]): Dictionary of RDKit Mol objects with their Stoichiometric Coefficients, representing the products.
     - main_product_index (int): The index of the main product, in the products list (Set as 0 by default)
 
     Methods:
@@ -81,7 +81,11 @@ class Reaction:
         """
         reactants_atoms = sum(Atom_Count_With_H(mol) * coeff for mol,coeff in self.reactants.items())
         main_product_atoms = Atom_Count_With_H(self.main_product) * self.products[self.main_product]
-        return (main_product_atoms / reactants_atoms) * 100
+        economy = (main_product_atoms / reactants_atoms) * 100
+        if economy > 100 :
+            raise ValueError("Atom economy cannot be greater than 100, recheck your reaction")
+        else :
+            return economy
     
     # Atom Economy function using molar masses
     def Atom_Economy_M(self) -> float:
@@ -96,50 +100,39 @@ class Reaction:
         reactants_mass = sum(Descriptors.MolWt(mol) * coeff for mol,coeff in self.reactants.items())
         main_product_mass = Descriptors.MolWt(self.main_product) * self.products[self.main_product]
         return (main_product_mass / reactants_mass) * 100
-
+    
     # Calculate the green score of a molecule
-    def calculate_molecule_average_green_score(self) -> float:
+    def green_score(self) -> tuple[float, list[float]]:
         """
-        Calculate the average green score of a molecule based on its atoms.
+        Compute an overall "green score" for the reaction by averaging
+        the per molecule green scores of each product and summing their penalties.
 
         Returns:
-            float: Average green score (0-100)
+            avg_score (float): the average green score across all products (0 to 100)
+            aggregated_details (List[float]): first baseline score, followed by total penalty contribution per category (Lenght, LogP, Presence of groups)
         """
+        
+        product_mols = list(self.products.keys())
+        if not product_mols:
+            raise ValueError("No products to score")
+        total_score = 0.0
+        details: list[float] = []
+        
+        for idx, mol in enumerate(product_mols):
+            mol_score, mol_details = Green_score_molecule(mol)
+            total_score += mol_score
 
-        green_scores = {
-            # Very green elements
-            "C": 100, "H": 100, "O": 100, "N": 100, "P": 100, "S": 100,
-            
-            # Acceptable but less perfect
-            "B": 85, "Si": 85,
-            
-            # Risky halogens
-            "F": 60, "Cl": 60, "Br": 60, "I": 60,
-            
-            # Heavy metals and toxic elements
-            "Pb": 20, "Hg": 20, "Cd": 20, "As": 20, "Cr": 20, "Ni": 20, "Se": 20, "Tl": 20
+            # set up list of zeros
+            if idx == 0:
+                details = [0.0] * len(mol_details)
 
-            # Default score for unknown elements is 50
-        }
-        for molecule in self.products.keys():
-            if molecule is None:
-                raise ValueError("Invalid SMILES.")
-            
-            atoms = molecule.GetAtoms()
+            # add each penalty to see total
+            for i, penalty in enumerate(mol_details):
+                details[i] += penalty
 
-            if not atoms:
-                raise ValueError("No atoms found in the molecule.")
-            
-            total_score = 0
-            total_atoms = len(atoms)
-
-            for atom in atoms:
-                symbol = atom.GetSymbol().strip().capitalize()
-                total_score += green_scores.get(symbol, 50)
-
-            average_score = total_score / total_atoms
-
-            return average_score
+        avg_score = total_score / len(product_mols)
+        return avg_score, details
+    
 
 
 # PMI and E-Factor Functions
@@ -245,68 +238,161 @@ def compute_E(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float) -
     E = total_waste_mass / mass_target
     return E
 
-def get_solvent_score(extras : dict[Mol, float]) -> int:
+def get_solvent_info(extras: Dict[Chem.Mol, float]) -> tuple[str, str]:
     """
-    Return the green score of a solvent based on predefined solvent green scores.
-
-    Inputs:
-        dict[Mol, float] : Extras Mol Object and mass       
-
-    Returns:
-        int: Green score out of 100 (default 50 if solvent is unknown)
+    Given extras={Mol: mass_in_g_per_kg_product}, returns
+    a short verdict + a color hex code (red/yellow/green).
     """
+    Green      = {"O", "CCO", "CC(=O)OCC", "CC1COCC1", "O=C=O", "CC(O)C", "CO"}
+    Bad        = {"ClCCl", "ClC(Cl)Cl", "c1ccccc1", "ClC(Cl)(Cl)Cl", "CCCCCC", "CCCCC"}
+    
+    seen = {"Green": 0, "Acceptable": 0, "Bad": 0}
+    for mol in extras:
+        smi = Chem.MolToSmiles(mol)
+        if smi in Green:
+            seen["Green"] += 1
+        elif smi in Bad:
+            seen["Bad"] += 1
+        else:
+            seen["Acceptable"] += 1
 
-    solvent_green_scores = {
-        # Green solvents (score = 30)
-        "O": 30,
-        "CCO": 30,
-        "CC(=O)OCC": 30,
-        "CC1COCC1": 30,
-        "O=C=O": 30,
-        "CC(O)C": 30,
-        "CO": 30,
+    # verdict logic
+    if seen["Bad"] > 0:
+        return "⚠️ Bad solvent detected!", "#F03335"
+    elif seen["Acceptable"] > 0:
+        return "⚠️ Adequate solvents detected.", "#F6DF7E"
+    else:
+        return "✅ All solvents are Green!", "#88DF66"
 
-        # Acceptable solvents (score = 70)
-        "CC#N": 70,
-        "CC(=O)C": 70,
-        "CCOCC": 70,
-        "ClCCCl": 70,
-        "Cc1ccccc1": 70,
 
-        # Bad solvents (score = 100)
-        "ClCCl": 100,
-        "ClC(Cl)Cl": 100,
-        "c1ccccc1": 100,
-        "ClC(Cl)(Cl)Cl": 100,
-        "CCCCCC": 100,
-        "CCCCC": 100
+def waste_efficiency(E : float) -> tuple[str,str] :
+    """ 
+    Returns if the E factor is within normal ranges, along with a color hex code """
+    if E <= 1:
+        return "Great Waste Efficiency, with stellar E factor ✅", "#4BAF24"
+    elif 1 < E <= 10:
+        return "Good Waste Efficiency ✅","#88DF66"
+    elif 10 < E <= 50:
+        return "Average Waste Efficiency, could be improoved ⚠️","#F6DF7E"
+    elif 50 < E <= 100:
+        return "Bad Waste Efficiency, should be improoved 🚨","#F68B8C"
+    elif E > 100:
+        return "🚨 Very Bad Waste Efficiency, must be improoved 🚨","#F03335"
+    
+    
+def PMI_assesment(PMI : float) -> tuple[str,str] :
+    """ 
+    Returns if the PMI factor is within normal ranges, along with a color hex code 
+    """
+    if  PMI <= 10:
+        return "Great Process Mass Intensity ✅","#88DF66"
+    elif 10 < PMI <= 50:
+        return "Average Process Mass Intensity, could be improoved ⚠️","#F6DF7E"
+    elif 50 < PMI <= 100:
+        return "Bad Process Mass Intensity, should be improoved 🚨","#F68B8C"
+    elif PMI > 100:
+        return "🚨 Very Bad Process Mass Intensity, must be improoved 🚨","#F03335"
+
+
+def Atom_ec_assesment(ae : float)  -> tuple[str,str] :
+    """ 
+    Returns if the atom economy is within normal ranges, along with a color hex code 
+    """
+    if 89 < ae <= 100:
+        return "Amazing atom economy ✅", "#4BAF24"
+    elif  79 < ae <= 89:
+        return "Great atom economy ✅","#88DF66"
+    elif 59 < ae <= 79:
+        return " ⚠️ Could be improoved, Average atom economy ","#F6DF7E"
+    elif 39 < ae <= 59:
+        return " 🚨 Should be improoved, Bad Atom economy","#F68B8C"
+    elif ae <= 39:
+        return "🚨 Must be improoved, Very Bad Atom economy","#F03335"
+    elif ae >100:
+        return " Doublecheck your reaction, Impossible Atom economy "
+    
+  
+    
+def logP_assessment_molecule(lo: float) -> tuple[str,str]:
+    """Environmental friendliness based on MolLogP (basis as ideal is 2)."""
+    if 1.5<= lo <= 2.5:
+        return f"Excellent Log P of {lo:.2f}", "#4BAF24"
+    if 0 <= lo <= 4:
+        return f"✅ LogP of {lo:.2f}, within acceptable range", "#88DF66"
+    elif -1 <= lo < 0 or 4 < lo <= 6:
+        return f"⚠️ LogP of {lo:.2f}, slightly outside ideal", "#F6DF7E"
+    else:
+        return f"🚨 LogP of {lo:.2f}, outside acceptable limits", "#F03335"
+        
+        
+
+def atoms_assessment(react: Reaction) -> tuple[str,str]:
+    """
+    Warn if any risky elements are present in one of the products.
+    Returns (message, color_hex).
+    """
+    green_scores = {
+        "C":100, "H":100, "O":100, "N":100, "P":100, "S":100,
+        "B":85,  "Si":85, "Mg":80,  "Fe":75, "Al":70, "Zn":70,
+        "F":60,  "Cl":60, "Br":60,  "I":60,  "Li":60, "Ti":50,
+        "Sn":30, "Pb":20, "Pd":20,  "Hg":20,  "Cd":20, "As":20,
+        "Cr":20, "Ni":20, "Se":20,  "Tl":20,  "Pt":10, "Rh":10
     }
 
-    solvent_name = extras.MolToSmiles.keys().strip().lower()
-    return solvent_green_scores.get(solvent_name, 50) 
+    risky_atoms = set()
+    for mol in react.products.keys():  
+        risky_atoms |= {
+            a.GetSymbol()
+            for a in mol.GetAtoms()
+            if green_scores.get(a.GetSymbol(), 50) <= 60
+        }
 
-"""
-if compute_PMI() <= 10:
-   pmi_penalty = 0
-elif 10 < compute_PMI() <= 50:
-    pmi_penalty = 30
-elif 50 < compute_PMI() <= 100:
-    pmi_penalty = 70
-elif compute_PMI() > 100:
-    pmi_penalty = 100
+    if risky_atoms:
+        return f"⚠️ Concerning atoms: {', '.join(sorted(risky_atoms))}", "#F6DF7E"
+    else:
+        return "✅ All atoms are green", "#88DF66"
 
-if compute_E() <= 1:
-   E_factor_penalty = 0
-elif 1 < compute_E() <= 10:
-    E_factor_penalty = 10
-elif 10 < compute_E() <= 50:
-    E_factor_penalty = 50
-elif 50 < compute_E <= 100:
-    E_factor_penalty = 70
-elif compute_PMI() > 100:
-    E_factor_penalty = 100
 
-def grade_green_chemistry(smiles: str, solvent_name: str, product_mass: float, all_products_mass: float) -> int:
-    score = 100 - 0.1 * Reaction.calculate_molecule_average_green_score() - 0.25 * get_solvent_score() - 0.15 * Reaction.Atom_Economy_A() - 0.15 * pmi_penalty - 0.35 * E_factor_penalty
-    return score 
-"""
+def structural_assessment(react: Reaction) -> tuple[str,str]:
+    bad_smarts = {
+        "Carbon oxides " : ["O=C=O", "C#O" ],
+        "Nitro-"             : ["[N+](=O)[O-]", "O[N](=O)[O-]", "O=N[O-]", "[NX3+](=O)[O-,O]"],
+        "Azo-"               : ["N=N"],
+        "Dichloro-aromatic" : ["c([Cl,Br])c.*c([Cl,Br])c"]
+    }
+    heavy_chain_flag = False
+    bad_groups = set()
+
+    for mol in react.products.keys():
+        if sum(1 for a in mol.GetAtoms() if a.GetSymbol() != "H") > 10:
+            heavy_chain_flag = True
+
+        mol_fp = rdMolDescriptors.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)
+        
+        for name, patterns in bad_smarts.items():
+            for sm in patterns:
+                ref = Chem.MolFromSmarts(sm)
+                if not ref:
+                    continue
+                Chem.SanitizeMol(ref)
+
+                if mol.HasSubstructMatch(ref):
+                    bad_groups.add(name)
+                    break
+                
+                ref_fp = rdMolDescriptors.GetMorganFingerprintAsBitVect(ref, radius=2, nBits=2048)
+                sim    = TanimotoSimilarity(ref_fp, mol_fp)
+                if sim > 0.15:
+                    bad_groups.add(f"Similarity to {name}")
+                    break
+                
+    issues = []
+    if heavy_chain_flag:
+        issues.append("Presence of long heavy-atom chain(s)")
+    if bad_groups:
+        issues.append("Problematic groups: " + ", ".join(sorted(bad_groups)))
+
+    if issues:
+        return "⚠️ " + "; ".join(issues), "#F03335"
+    else:
+        return "✅ No structural red flags", "#88DF66"
