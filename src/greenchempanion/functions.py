@@ -101,37 +101,6 @@ class Reaction:
         main_product_mass = Descriptors.MolWt(self.main_product) * self.products[self.main_product]
         return (main_product_mass / reactants_mass) * 100
     
-    # Calculate the green score of a molecule
-    def green_score(self) -> tuple[float, list[float]]:
-        """
-        Compute an overall "green score" for the reaction by averaging
-        the per molecule green scores of each product and summing their penalties.
-
-        Returns:
-            avg_score (float): the average green score across all products (0 to 100)
-            aggregated_details (List[float]): first baseline score, followed by total penalty contribution per category (Lenght, LogP, Presence of groups)
-        """
-        
-        product_mols = list(self.products.keys())
-        if not product_mols:
-            raise ValueError("No products to score")
-        total_score = 0.0
-        details: list[float] = []
-        
-        for idx, mol in enumerate(product_mols):
-            mol_score, mol_details = Green_score_molecule(mol)
-            total_score += mol_score
-
-            # set up list of zeros
-            if idx == 0:
-                details = [0.0] * len(mol_details)
-
-            # add each penalty to see total
-            for i, penalty in enumerate(mol_details):
-                details[i] += penalty
-
-        avg_score = total_score / len(product_mols)
-        return avg_score, details
     
 
 
@@ -273,11 +242,11 @@ def waste_efficiency(E : float) -> tuple[str,str] :
     elif 1 < E <= 10:
         return "Good Waste Efficiency ✅","#88DF66"
     elif 10 < E <= 50:
-        return "Average Waste Efficiency, could be improoved ⚠️","#F6DF7E"
+        return "Average Waste Efficiency, could be improved ⚠️","#F6DF7E"
     elif 50 < E <= 100:
-        return "Bad Waste Efficiency, should be improoved 🚨","#F68B8C"
+        return "Bad Waste Efficiency, should be improved 🚨","#F68B8C"
     elif E > 100:
-        return "🚨 Very Bad Waste Efficiency, must be improoved 🚨","#F03335"
+        return "🚨 Very Bad Waste Efficiency, must be improved 🚨","#F03335"
     
     
 def PMI_assesment(PMI : float) -> tuple[str,str] :
@@ -287,11 +256,11 @@ def PMI_assesment(PMI : float) -> tuple[str,str] :
     if  PMI <= 10:
         return "Great Process Mass Intensity ✅","#88DF66"
     elif 10 < PMI <= 50:
-        return "Average Process Mass Intensity, could be improoved ⚠️","#F6DF7E"
+        return "Average Process Mass Intensity, could be improved ⚠️","#F6DF7E"
     elif 50 < PMI <= 100:
-        return "Bad Process Mass Intensity, should be improoved 🚨","#F68B8C"
+        return "Bad Process Mass Intensity, should be improved 🚨","#F68B8C"
     elif PMI > 100:
-        return "🚨 Very Bad Process Mass Intensity, must be improoved 🚨","#F03335"
+        return "🚨 Very Bad Process Mass Intensity, must be improved 🚨","#F03335"
 
 
 def Atom_ec_assesment(ae : float)  -> tuple[str,str] :
@@ -303,11 +272,11 @@ def Atom_ec_assesment(ae : float)  -> tuple[str,str] :
     elif  79 < ae <= 89:
         return "Great atom economy ✅","#88DF66"
     elif 59 < ae <= 79:
-        return " ⚠️ Could be improoved, Average atom economy ","#F6DF7E"
+        return " ⚠️ Could be improved, Average atom economy ","#F6DF7E"
     elif 39 < ae <= 59:
-        return " 🚨 Should be improoved, Bad Atom economy","#F68B8C"
+        return " 🚨 Should be improved, Bad Atom economy","#F68B8C"
     elif ae <= 39:
-        return "🚨 Must be improoved, Very Bad Atom economy","#F03335"
+        return "🚨 Must be improved, Very Bad Atom economy","#F03335"
     elif ae >100:
         return " Doublecheck your reaction, Impossible Atom economy "
     

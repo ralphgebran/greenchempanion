@@ -23,8 +23,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+st.header("💱 SMILES Converters", anchor="Converters")
+
 # SMILES TO MOLECULE IMAGE DISPLAY
-with st.expander("😊 Smiles to Molecule Converter"):
+with st.expander("😊 SMILES to Molecule Converter"):
     M2S_smiles = st.text_input("Enter a SMILES:", key ="Mol2Smiles_input")
 
     if M2S_smiles:
@@ -32,8 +34,7 @@ with st.expander("😊 Smiles to Molecule Converter"):
         if M2S_smiles == "VRMT":
             st.write("Easter Egg :o")
             st.image("../../assets/banner.png")
-        if M2S_smiles == "miaw" or M2S_smiles in [n * "miaw" for n in range(1, 10)]:
-            st.write("🐈😺😽🙀😿😸😹😾🐱😻😼🐈‍⬛COEUR")
+
 
         elif Chem.MolFromSmiles(M2S_smiles) is None:
             st.write("⚠️ Enter a valid SMILES format [e.g.: CCO]")
@@ -59,7 +60,7 @@ def draw_and_get_smiles() -> str:
         str: The canonical SMILES of the drawn molecule.
     """
 
-    st.title("Draw Molecule and Get SMILES", anchor= False)
+    st.subheader("Draw Molecule and Get SMILES", anchor= False)
     molecule = ""
     # initialize a counter in session state
     if "ketcher_key" not in st.session_state:
@@ -71,7 +72,7 @@ def draw_and_get_smiles() -> str:
         height=600,
         key=f"ketcher_{st.session_state.ketcher_key}")
     
-    st.button("🔄 Reset drawing and Smiles", on_click=lambda: st.session_state.update({"ketcher_key": st.session_state.ketcher_key + 1}))
+    st.button("🔄 Reset drawing and SMILES", on_click=lambda: st.session_state.update({"ketcher_key": st.session_state.ketcher_key + 1}))
 
     # Process the SMILES
     while ketcher_smiles:
@@ -92,7 +93,7 @@ def draw_and_get_smiles() -> str:
         st.info("🧪 Draw a molecule above to generate SMILES automatically!")
         return ""
 
-with st.expander("✏️ Drawn Molecule to Smiles Converter"):
+with st.expander("✏️ Drawn Molecule to SMILES Converter"):
     # Call the function from testfunctions.py
     smiles_result = draw_and_get_smiles()
 
@@ -395,7 +396,7 @@ with column2:
     )
 
 
-st.header("🧑‍🔬 Your GCP Evaluation", anchor="GCP_evaluation")
+st.header("🧑‍🔬 GCP Green Chemistry Evaluation", anchor="GCP_evaluation")
 
 box_style = """
     <div style="
@@ -407,7 +408,7 @@ box_style = """
         text-align: center;
     ">
         <h3 style="color: #28a745;">{title}</h3>
-        <p>{content}</p>
+        <p style="color: #000000;">{content}</p>
     </div>
 """
 
@@ -415,7 +416,7 @@ box_style = """
 
 box_style_2 = """
 <div style="
-    border: 2px solid #28a745;
+    border: 2px solid #000000;
     border-radius: 10px;
     padding: 20px;
     margin: 10px;
@@ -435,24 +436,24 @@ if st.session_state.reactants and st.session_state.products:
             solv_text, solv_color = get_solvent_info(st.session_state.extras)
             st.markdown(box_style_2.format(title="🌱 Solvent Quality Check", content=solv_text, color=solv_color), unsafe_allow_html=True)
         else:
-            st.markdown(box_style.format(title="🌱 Solvent Quality Check", content="Seems like no solvent was used, Nice Job!"), unsafe_allow_html=True)
+            st.markdown(box_style.format(title="🌱 Solvent Quality Check", content="Seems like no solvent was used. Nice Job!"), unsafe_allow_html=True)
 
         Log_P = Descriptors.MolLogP(input_reaction.main_product)
         log_text, log_color = logP_assessment_molecule(Log_P)
         st.markdown(box_style_2.format(title="🌍 Main Product LogP", content=log_text, color=log_color), unsafe_allow_html=True)
 
         a_ass_text, a_ass_color = atoms_assessment(input_reaction)
-        st.markdown(box_style_2.format(title="⚛️ Atom Assessment", content=a_ass_text, color=a_ass_color), unsafe_allow_html=True)
+        st.markdown(box_style_2.format(title="🔎 Atom Assessment", content=a_ass_text, color=a_ass_color), unsafe_allow_html=True)
 
         struct_text, struct_color = structural_assessment(input_reaction)
         st.markdown(box_style_2.format(title="🧬 Structural Attributes Analysis", content=struct_text, color=struct_color), unsafe_allow_html=True)
 
     with col2:
         score_text, color = waste_efficiency(E_result)
-        st.markdown(box_style_2.format(title="♻️ E-Factor: Waste Efficiency", content=score_text, color=color), unsafe_allow_html=True)
+        st.markdown(box_style_2.format(title="🚮 E-Factor: Waste Efficiency", content=score_text, color=color), unsafe_allow_html=True)
 
         pmi_text, pmi_color = PMI_assesment(PMI_result)
-        st.markdown(box_style_2.format(title="⚖️ PMI", content=pmi_text, color=pmi_color), unsafe_allow_html=True)
+        st.markdown(box_style_2.format(title="🅿️ PMI", content=pmi_text, color=pmi_color), unsafe_allow_html=True)
 
         try:
             atom_economy_m_result = input_reaction.Atom_Economy_M()
@@ -462,7 +463,7 @@ if st.session_state.reactants and st.session_state.products:
 
             html = f"""<div style="
 display: flex;
-border: 2px solid #28a745;
+border: 2px solid #000000;
 border-radius: 10px;
 overflow: hidden;
 margin: 10px;
@@ -474,7 +475,7 @@ margin: 10px;
         text-align: center;
         border-right: 1px solid #000;
     ">
-        <h4 style="margin:0; color:#000000;">⚗️ Atom Econ Molar Mass</h4>
+        <h4 style="margin:0; color:#000000;">⚖️ Atom Econ. (Molar Mass)</h4>
         <p style="margin:5px 0 0;">{ae_m_text}</p>
     </div>
     <div style="
@@ -483,7 +484,7 @@ margin: 10px;
         padding: 20px;
         text-align: center;
     ">
-        <h4 style="margin:0; color:#000000;">🧪 Atom Econ nb Atoms</h4>
+        <h4 style="margin:0; color:#000000;">⚛️ Atom Econ. (Atom no.)</h4>
         <p style="margin:5px 0 0;">{ae_a_text}</p>
     </div>
 </div>"""
@@ -499,14 +500,14 @@ else:
             solv_text, solv_color = get_solvent_info(st.session_state.extras)
             st.markdown(box_style_2.format(title="🌱 Solvent Quality Check", content=solv_text, color=solv_color), unsafe_allow_html=True)
         else:
-            st.markdown(box_style.format(title="🌱 Solvent Quality Check", content="Seems like no solvent was used, Nice Job!"), unsafe_allow_html=True)
+            st.markdown(box_style.format(title="🌱 Solvent Quality Check", content="Seems like no solvent was used. Nice Job!"), unsafe_allow_html=True)
             
-        st.markdown(box_style.format(title="🌍 Main Product LogP", content="Add Reaction to analyse"), unsafe_allow_html=True)
-        st.markdown(box_style.format(title="⚛️ Atom Assessment", content="Add Reaction to analyse"), unsafe_allow_html=True)
-        st.markdown(box_style.format(title="🧬 Structural Attributes Analysis", content="Add Reaction to analyse"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="🌍 Main Product LogP", content="Add a Reaction!"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="🔎 Atom Assessment", content="Add a Reaction!"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="🧬 Structural Attributes Analysis", content="Add a Reaction!"), unsafe_allow_html=True)
 
     with col2:
-        st.markdown(box_style.format(title="♻️ E-Factor: Waste Efficiency", content="Add Reaction to analyse"), unsafe_allow_html=True)
-        st.markdown(box_style.format(title="⚖️ PMI", content="Add Reaction to analyse"), unsafe_allow_html=True)
-        st.markdown(box_style.format(title="⚗️ Atom Econ Molar Mass", content="Add Reaction to analyse"), unsafe_allow_html=True)
-        st.markdown(box_style.format(title="🧪 Atom Econ nb Atoms", content="Add Reaction to analyse"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="🚮 E-Factor: Waste Efficiency", content="Add a Reaction!"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="🅿️ PMI", content="Add a Reaction!"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="⚖️ Atom Econ. (Molar Mass)", content="Add a Reaction!"), unsafe_allow_html=True)
+        st.markdown(box_style.format(title="⚛️ Atom Econ. (Atom no.)", content="Add a Reaction!"), unsafe_allow_html=True)
