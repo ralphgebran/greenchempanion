@@ -127,7 +127,12 @@ First start by cloning the GCP Repository:
 git clone https://github.com/ralphgebran/greenchempanion
 ```
 
-Then, install the environement containing all GreenChemPanion dependencies:
+Next step is to install the environement containing all GreenChemPanion dependencies!
+
+Make sure your terminal is on the folder containing the .yml files, which should be the `src` folder.
+```
+cd "YourRepoLocation"/src
+```
 
 - If you are on Windows 🪟:
 ```
@@ -151,9 +156,9 @@ If you need jupyter lab, install it
 ```
 
 ## 🌐 Streamlit Applet
-In the `src/greenchempanion/` folder of the repository, the `app.py` is present, containing the interactive applet.
+In the `src/greenchempanion/` folder of the repository, the `app.py` file is present, containing the interactive applet.
 
-Make sure your terminal is located in the `src` folder
+Make sure your terminal is on the `greenchempanion` folder
 ```
 cd "YourRepoLocation"/src/greenchempanion
 ```
@@ -164,6 +169,54 @@ streamlit run app.py
 ```
 
 The applet should open on local tab in your default browser. Feel free to experiment with the different sections, which showcase the GCP fuctionalities!
+
+### 1️⃣ **SMILES Converters**
+
+Two tools are present on the app to help the user with SMILES, which serves as the principal format for molecular inputs on the applet. 
+
+#### 1️⃣🅰️ **SMILES to Molecule converter**
+
+To double check a SMILES, or try to write it yourself, you can input a SMILES string in a text box (1), which will output an image of the given SMILES, as well as the molecule's atom count (3) as a showcase of the `Atom_Count_With_H()` function.
+
+![SmilesToMol](assets/smilestomol.png)
+
+#### 1️⃣🅱️ **Molecule to SMILES converter**
+
+To draw a molecule and obtain its SMILES, you can draw the structure on the provided interface (4), and then click Apply (5), which will output the given SMILES (8), as well as the molecule's atom count (9).
+
+To erase all drawn structures, use the Reset button (6), and to reboot the whole module, use the Reset drawing and SMILES button (7).
+
+![MolToSmiles](assets/moltosmiles.png)
+
+### 2️⃣ **Enter a reaction**
+
+This section contains two sections to add elements of your chemical reaction.
+
+#### 2️⃣🅰️ **Add a molecule**
+Input a molecule for your reaction, by writing its SMILES in (10), its stoichiometric coefficient in (11), and selecting whether it's a reactant or a product using the radio buttons (12). Finally, the Add Molecule button (13) will store the entry in the reaction.
+
+![AddMol](assets/addmol.png)
+
+#### 2️⃣🅱️ **Add extras**
+Input the main product yield (17), and add solvents and extraction materials, by writing the SMILES in (14), the mass (grams) used per kilogram of product in (15). Finally, the Add Molecule button (16) will store the entry in the reaction.
+
+![AddExtra](assets/addextra.png)
+
+### 3️⃣ **Stored Reaction and Compute Factors**
+Under the two expanders are two columns:
+
+The first (18) displays the reaction components you added: Reactants (20), Products (21) and Extras (24). Under the Products section, you can choose which compound is the main/desired product using the radio buttons (22), which will be marked with a label (23).
+
+The second (19) contains three buttons which appear once a reaction is entered (25). Each one computes the given factor, and displays the result under the button.
+
+![ReacFac](assets/reacfac.png)
+
+### 4️⃣ **Green Chemistry Evaluation**
+MIAW MIAW MIAW PLACEHOLDER
+
+ marc si tu comprend comment ca marche chaque point essaye de briefly l'expliquer 👉🏻👈🏻
+
+![Evaluation](assets/evaluation.png)
 
 ## 🛠️ Development installation
 
