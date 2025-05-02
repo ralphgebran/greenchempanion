@@ -1,9 +1,12 @@
 ![Project Logo](assets/banner.png)
 
 ![Coverage Status](assets/coverage-badge.svg)
+![PY Badge](https://img.shields.io/badge/Python-3.10-blue?logo=python&logoColor=orange)
+![Contributors Badge](https://img.shields.io/badge/Contributors-4-white)
+![License Badge](https://img.shields.io/badge/License-MIT-red)
 
 <h1 align="center">
-GreenChemPanion 🍃
+GreenChemPanion
 </h1>
 
 ### *Your Python-based companion for Green Chemistry!*

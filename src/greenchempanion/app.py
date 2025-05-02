@@ -6,9 +6,19 @@ from rdkit.Chem import Descriptors
 from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E 
 from functions import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, logP_assessment_molecule, atoms_assessment, structural_assessment
 
-st.set_page_config(page_title="GreenChemPanion", page_icon="🍃", layout= "wide")
-st.title("GCP: GreenChemPanion", anchor= False) #TITLE
-st.write("Interactive Streamlit Applet showcasing the functions for GCP!") 
+st.set_page_config(page_title="GreenChemPanion", page_icon="../../assets/logo.ico", layout= "wide")
+
+col1, col2 = st.columns([2, 13])  # Adjust width ratio as needed
+
+with col1:
+    st.image("../../assets/logo_icon.png", width=1000)  # Replace with your image path
+
+with col2:
+    st.markdown("## GCP: GreenChemPanion\nInteractive Streamlit Applet showcasing the functions for GCP!")
+
+
+#st.title("GCP: GreenChemPanion", anchor= False) #TITLE
+#st.write("Interactive Streamlit Applet showcasing the functions for GCP!") 
 st.markdown("---")
 
 st.markdown(
@@ -33,7 +43,7 @@ with st.expander("😊 SMILES to Molecule Converter"):
         #Developers Easter Egg
         if M2S_smiles == "VRMT":
             st.write("Easter Egg :o")
-            st.image("../../assets/banner.png")
+            st.image("../../assets/vrmt.png")
 
 
         elif Chem.MolFromSmiles(M2S_smiles) is None:
