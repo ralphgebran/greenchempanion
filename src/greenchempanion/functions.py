@@ -112,7 +112,8 @@ class Reaction:
         def atom_count_dict(mol_dict: Dict[Mol, int]) -> Dict:
             atom_counts = {}
             for mol, coeff in mol_dict.items():
-                for atom in mol.GetAtoms():
+                h_mol = Chem.AddHs(mol)
+                for atom in h_mol.GetAtoms():
                     symbol = atom.GetSymbol()
                     if symbol not in atom_counts:
                         atom_counts[symbol] = 0
