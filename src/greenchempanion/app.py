@@ -198,6 +198,12 @@ column1, column2 = st.columns(2)
 with column1 :
     st.subheader("📦 Stored Reaction", anchor="stored-reaction")
 
+    # Error message if Reaction is not balanced
+    if st.session_state.reactants and st.session_state.products:
+        test_reac = Reaction(st.session_state.reactants, st.session_state.products)
+        if test_reac.isBalanced() == False:
+            st.error("⚠️ The reaction entered is not balanced. Results shown may be incoherent.")
+
     # Reactants section
     st.write("##### ⚗️ Reactants")
     if st.session_state.reactants:

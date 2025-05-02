@@ -101,3 +101,37 @@ def test_e_ox():
     expected = 39.1
     assert abs(result - expected) < 1e-1, f"test_e_ox failed: Expected output is 39.1 ; Actual output is {ox_reaction_e}"
 test_e_ox()
+
+
+# TESTING THE REACTION BALANCE METHOD
+
+#Iron Sulfate Reaction
+iron_bromide = Chem.MolFromSmiles("[Fe+3].[Br-].[Br-].[Br-]")
+sulfuric_acid = Chem.MolFromSmiles("OS(=O)(=O)O")
+iron_sulfate = Chem.MolFromSmiles("[Fe+3].[Fe+3].[O-]S(=O)(=O)[O-].[O-]S([O-])(=O)=O.[O-]S([O-])(=O)=O")
+hbr = Chem.MolFromSmiles("Br")
+
+unbalanced_reaction = Reaction({iron_bromide:1, sulfuric_acid:1}, {iron_sulfate:1, hbr:1})
+balanced_reaction = Reaction({iron_bromide:2, sulfuric_acid:3}, {iron_sulfate:1, hbr:6})
+nonsense_reaction = Reaction({acetone:18, water:2}, {dioxygen:3, cr_acid:7})
+one_c_reaction = Reaction({Chem.MolFromSmiles("[C]"):2, dioxygen:1}, {carbon_dioxide:1})
+
+def test_balance_iron_false():
+    assert unbalanced_reaction.isBalanced() == False, f"test_balance_iron_false failed: Expected output is False ; Actual output is {unbalanced_reaction.isBalanced()}"
+test_balance_iron_false()
+
+def test_balance_iron_true():
+    assert balanced_reaction.isBalanced() == True, f"test_balance_iron_true failed: Expected output is True ; Actual output is {balanced_reaction.isBalanced()}"
+test_balance_iron_true()
+
+def test_balance_methane():
+    assert methane_comb.isBalanced() == True, f"test_balance_methane failed: Expected output is True ; Actual output is {methane_comb.isBalanced()}"
+test_balance_methane()
+
+def test_balance_nonsense():
+    assert nonsense_reaction.isBalanced() == False, f"test_balance_nonsense failed: Expected output is False ; Actual output is {nonsense_reaction.isBalanced()}"
+test_balance_nonsense()
+
+def test_balance_one_c():
+    assert one_c_reaction.isBalanced() == False, f"test_balance_one_c failed: Expected output is False ; Actual output is {nonsense_reaction.isBalanced()}"
+test_balance_one_c()

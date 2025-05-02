@@ -56,8 +56,23 @@ from greenchempanion import canonicalize_smiles
 print(canonicalize_smiles("C(C)O")) # Output should be CCO
 ```
 
-### 3️⃣ **Atom Economy (methods of the `Reaction` class)**
-Two methods are programmed into the `Reaction` class, which output atom economy:
+### 3️⃣ **Methods of the `Reaction` class**
+Three methods are programmed into the `Reaction` class:
+
+#### 3️⃣🅰️ **Reaction Balance: `isBalanced`**
+
+This method checks whether the given reaction is balanced or not:
+
+```python
+carbon = Chem.MolFromSmiles("[C]")
+unbalanced_reaction = Reaction({carbon:2, dioxygen:1}, {carbon_dioxide:1})
+print(methane_comb.isBalanced()) # Output should be True
+print(unbalanced_reaction.isBalanced()) # Output should be False
+```
+
+#### 3️⃣🅱️ **Atom Economy methods**
+
+The Atom economy for a reaction can be compute in two ways:
 
 - `Atom_Economy_A` : Atom Economy based on the number of atoms 
 

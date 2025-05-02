@@ -100,7 +100,28 @@ class Reaction:
         reactants_mass = sum(Descriptors.MolWt(mol) * coeff for mol,coeff in self.reactants.items())
         main_product_mass = Descriptors.MolWt(self.main_product) * self.products[self.main_product]
         return (main_product_mass / reactants_mass) * 100
-    
+        
+    # Reaction Balance check
+    def isBalanced(self) -> bool:
+        """
+        Checks whether the reaction is balanced or not.
+
+        Returns:
+        - bool: True if the reaction is balanced, False if it's not.
+        """
+        def atom_count_dict(mol_dict: Dict[Mol, int]) -> Dict:
+            atom_counts = {}
+            for mol, coeff in mol_dict.items():
+                for atom in mol.GetAtoms():
+                    symbol = atom.GetSymbol()
+                    if symbol not in atom_counts:
+                        atom_counts[symbol] = 0
+                    atom_counts[symbol] += coeff
+            return atom_counts
+        
+        reac_count = atom_count_dict(self.reactants)
+        prod_count = atom_count_dict(self.products)
+        return reac_count == prod_count
     
 
 
