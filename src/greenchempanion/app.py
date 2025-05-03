@@ -1,5 +1,6 @@
 import streamlit as st
-import numpy
+import pandas as pd
+import math
 from rdkit import Chem
 from rdkit.Chem import Draw
 from rdkit.Chem import Descriptors
@@ -172,6 +173,42 @@ with st.expander("🧪 Add a Molecule"):
                     st.success(f"Added a product: {R_smiles} (x{stoich})")
         else:
             st.error("⚠️ Enter a valid SMILES format [e.g.: CCO]", icon="🚨")
+
+
+
+#COMMON SOLVENT EXPANDER
+with st.expander("💧 Add a Common Solvent (as a volume input)"):
+    st.info("ℹ️ Densities are considered at NTP Conditions (20 °C, 1 atm)")
+    #Creating data frame from csv
+    solvent_df = pd.read_csv("../../data/solvent_data.csv", delimiter=";")
+    solvent_list = solvent_df["Solvent"].tolist()
+
+    #Solvent Selection
+    solvent_select =st.selectbox("Choose a solvent:", solvent_list, index=None, placeholder="Solvent...")
+
+    #Volume input
+    solvent_vol = st.number_input("Enter the volume (L) used per kg of product:", min_value=0.0, step=0.01)
+
+    # Confirm button
+    if st.button("➕ Add Solvent", key ="Solvent_Add"):
+        density = solvent_df.loc[solvent_df["Solvent"] == solvent_select, "Density"].values[0]
+        solvent_smiles = solvent_df.loc[solvent_df["Solvent"] == solvent_select, "SMILES"].values[0]
+        solvent_mass = float(round(density*solvent_vol*1000))
+
+        S_mol = Chem.MolFromSmiles(solvent_smiles)
+        smiles_solvent = [Chem.MolToSmiles(mol) for mol in st.session_state.extras]
+
+        S_smiles = canonicalize_smiles(solvent_smiles)
+        if S_smiles in smiles_solvent :
+            for mol in st.session_state.extras:
+                if Chem.MolToSmiles(mol) == S_smiles:
+                    corresponding_mol= mol
+            st.session_state.extras[corresponding_mol] += solvent_mass
+            st.success(f"Added solvent : another {solvent_vol} L ({solvent_mass} g) of {solvent_select} ({S_smiles})")
+        else :
+            st.session_state.extras[S_mol] = solvent_mass
+            st.success(f"Added solvent: {solvent_select} ({S_smiles}), {solvent_vol} L ({solvent_mass} g)")
+
 
 #SOLVENTS EXPANDER
 with st.expander("🪣 Add extras (Yield, Solvents, Extraction material...)"):

@@ -1,0 +1,47 @@
+Solvent;SMILES;Density
+1,2-dimethoxy-ethane (glyme, DME);COCCOC;0.8637
+1-butanol;CCCCO;0.81
+1-propanol;CCCO;0.803
+1,4-dioxane;C1COCCO1;1.033
+2-butanol;CCC(O)C;0.8063
+2-butanone;CCC(=O)C;0.7999
+2-propanol;CC(O)C;0.785
+acetic acid;CC(=O)O;1.0446
+acetone;CC(=O)C;0.7845
+acetonitrile;CC#N;0.7857
+benzene;c1ccccc1;0.8765
+carbon tetrachloride;C(Cl)(Cl)(Cl)Cl;1.594
+chlorobenzene;ClC1=CC=CC=C1;1.1058
+chloroform;C(Cl)(Cl)Cl;1.4788
+cyclohexane;C1CCCCC1;0.7739
+diethyl ether;CCOCC;0.7134
+diethylene glycol;OCCOCCO;1.1197
+diglyme;COCCOCCOC;0.943
+dimethyl-formamide (DMF);CN(C)C=O;0.9445
+dimethyl sulfoxide (DMSO);CS(=O)C;1.092
+dichloromethane (DCM);C(Cl)Cl;1.322
+ethyl acetate;CCOC(=O)C;0.894
+ethanol;CCO;0.789
+ethylene glycol;C(CO)O;1.115
+glycerin;C(C(CO)O)O;1.26
+heptane;CCCCCCC;0.684
+hexamethylphosphoramide (HMPA);CN(P(=O)(N(C)C)N(C)C)C;1.03
+hexamethylphosphorous triamide (HMPT);CN(P(N(C)C)N(C)C)C;0.898
+hexane;CCCCCC;0.659
+m-xylene;CC1=CC(C)=CC=C1;0.868
+methanol;CO;0.792
+methylene chloride;ClCCl;1.326
+methyl t-butyl ether (MTBE);CC(C)(C)OC;0.741
+nitromethane;C[N+](=O)[O-];1.382
+N-methyl-2-pyrrolidinone (NMP);CN1CCCC1=O;1.033
+o-xylene;CC1=CC=CC=C1C;0.897
+pentane;CCCCC;0.626
+petroleum ether (ligroine);CCC(C)CC;0.656
+p-toluene;CC1=CC=CC=C1;0.867
+p-xylene;CC1=CC=C(C)C=C1;0.861
+pyridine;C1=CC=NC=C1;0.982
+tetrahydrofuran (THF);C1CCOC1;0.8833
+toluene;CC1=CC=CC=C1;0.867
+triethyl amine;CCN(CC)CC;0.726
+water;O;0.998
+water, heavy;[2H]O[2H];1.107
