@@ -51,7 +51,7 @@ doc = [
 path = "src/greenchempanion/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["greenchempanion"]  
+packages = ["src/greenchempanion"]  
 
 #[tool.pytest.ini_options]
 #testpaths = [

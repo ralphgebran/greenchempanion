@@ -16,7 +16,53 @@ A Practical Programming for Chemistry project by Marc A, Ralph G, Tais T, Valent
 
 #### **GreenChemPanion**, or **GCP**, is a Python Package and Applet, based on RDKit and Streamlit, providing functions as well as an interface to compute Green Chemistry factors of a reaction or a molecule!
 
-## 🔥 Features
+
+## 👩‍💻 Installation
+
+First start by cloning the GCP Repository:
+```
+git clone https://github.com/ralphgebran/greenchempanion
+```
+
+Next step is to install the environement containing all GreenChemPanion dependencies!
+
+Make sure your terminal is on the folder containing the .yml files, which should be the `src` folder.
+```
+cd "YourRepoLocation"/src
+```
+
+- If you are on Windows 🪟:
+```
+conda env create -f env_win.yml
+```
+
+- If you are on Mac 🍏:
+```
+conda env create -f env_mac.yml
+```
+
+Activate the environment
+```
+conda activate gcp
+```
+
+Then, making sure your terminal is on the ROOT folder of the project (the one where `src` and `pyproject.toml` are located), you can pip install the project:
+```
+(gcp) pip install -e .
+```
+
+Now GCP should be present in your environment, and you can use its functions by importing it in your python files!
+```python
+from greenchempanion.functions import ...
+```
+
+If you need jupyter lab, install it 
+
+```
+(gcp) $ pip install jupyterlab
+```
+
+## 🔥 Features [MIAW MIAW PART NOT FINAL]
 GCP provides many functions helping to calculate Green Chemistry factors and analyse reactions. Most of them are centered around the main component of this package: the `Reaction` class!
 
 ### 1️⃣ **The Reaction class**
@@ -137,41 +183,6 @@ Numerical Operation: `Mass of Side Products per kg of Main Product + Mass of Ext
 print(sn_reaction_e) # Output should be 212.9
 ```
 
-
-## 👩‍💻 Installation
-
-First start by cloning the GCP Repository:
-```
-git clone https://github.com/ralphgebran/greenchempanion
-```
-
-Next step is to install the environement containing all GreenChemPanion dependencies!
-
-Make sure your terminal is on the folder containing the .yml files, which should be the `src` folder.
-```
-cd "YourRepoLocation"/src
-```
-
-- If you are on Windows 🪟:
-```
-conda env create -f env_win.yml
-```
-
-- If you are on Mac 🍏:
-```
-conda env create -f env_mac.yml
-```
-
-Activate the environment
-```
-conda activate gcp
-```
-
-If you need jupyter lab, install it 
-
-```
-(gcp) $ pip install jupyterlab
-```
 
 ## 🌐 Streamlit Applet
 In the `src/greenchempanion/` folder of the repository, the `app.py` file is present, containing the interactive applet.
