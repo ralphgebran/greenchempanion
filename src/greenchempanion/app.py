@@ -6,6 +6,8 @@ from rdkit.Chem import Draw
 from rdkit.Chem import Descriptors
 from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E 
 from functions import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, logP_assessment_molecule, atoms_assessment, structural_assessment
+from streamlit_extras.add_vertical_space import add_vertical_space
+
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="../../assets/logo.ico", layout= "wide")
 
@@ -17,6 +19,46 @@ with col1:
 with col2:
     st.markdown("## GCP: GreenChemPanion\nInteractive Streamlit Applet showcasing the functions for GCP!")
 
+st.markdown(
+    """
+    <style>
+        .tooltip      {display:inline-block; position:relative; font-size:15px;}
+        .tooltiptext  {
+            visibility:hidden; width:340px; background:#f9f9f9; color:#333;
+            text-align:left; padding:6px 12px; border:2px solid #ccc;
+            border-radius:6px; position:absolute; z-index:1;
+            top:125%; left:50%; transform: translateX(-50%); box-shadow:0 2px 8px rgba(0,0,0,0.15);
+            opacity:0; transition:opacity .25s;
+        }
+        .tooltip:hover .tooltiptext {visibility:visible; opacity:1;}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """
+    <style>
+    div.row-widget.stButton { 
+        margin-bottom: 0rem
+        margin-top: 0rem
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """
+    <style>
+    /* Shrink the vertical gap that Streamlit puts after every columns row */
+    div[data-testid="stHorizontalBlock"] {
+        margin-bottom: 0.5rem !important;   /* 0.5 rem ≈ 8 px – adjust to taste */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 #st.title("GCP: GreenChemPanion", anchor= False) #TITLE
 #st.write("Interactive Streamlit Applet showcasing the functions for GCP!") 
@@ -91,7 +133,7 @@ def draw_and_get_smiles() -> str:
             mol = Chem.MolFromSmiles(ketcher_smiles)
             if mol is not None:
                 canonical_smiles = Chem.MolToSmiles(mol, canonical=True, isomericSmiles=True)
-                st.subheader("Live SMILES from your drawing:", anchor= False)
+                st.subheader("SMILES from your drawing:", anchor= False)
                 st.success(canonical_smiles)
                 return canonical_smiles
             else:
@@ -326,7 +368,6 @@ with column1 :
         
 with column2:
     st.subheader("🧮 Compute Factors", anchor="compute-factors")
-    st.markdown('<div style="margin-top: 30px;"></div>', unsafe_allow_html=True)
     # Compute Atom Balance button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
         # Retrieve from session
@@ -340,18 +381,35 @@ with column2:
 
         # Create the Reaction object
         input_reaction = Reaction(reactants=R_reactants, products=R_products, main_product_index=R_main_index)
-        
-        if st.button("Compute Atom Economy"):
+
+        col_btn, col_tip = st.columns([8, 1])
+
+        with col_btn:
+            compute_clicked = st.button("Compute Atom Economy", key="btn_atom_economy")
+
+        with col_tip:
+            st.markdown(
+                """
+                <span class="tooltip">ℹ️
+                    <span class="tooltiptext">
+                        <b>Atom Economy</b> is the percentage of the mass (or atoms)
+                        of reactants that ends up in the desired product.
+                        Higher values (maximum&nbsp;100&nbsp;%) indicate a greener reaction.
+                    </span>
+                </span>
+                """,
+                unsafe_allow_html=True,
+            )
+        if compute_clicked:
             try:
                 atom_economy_m_result = input_reaction.Atom_Economy_M()
                 atom_economy_a_result = input_reaction.Atom_Economy_A()
                 st.success(f"⚖️ Atom Economy based on Molar Mass: **{atom_economy_m_result:.2f}%**")
                 st.success(f"⚛️ Atom Economy based on Number of Atoms: **{atom_economy_a_result:.2f}%**")
-
             except ValueError as e:
-                st.error(f" {e}", icon="🚨")
-
-    else:
+                st.error(f"{e}", icon="🚨")
+                    
+    else:  
         st.markdown(
         """
         <div style="
@@ -367,7 +425,7 @@ with column2:
         """,
         unsafe_allow_html=True,
     )
-    
+
     # Compute PMI button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
         # Retrieve from session
@@ -389,8 +447,24 @@ with column2:
         PMI_result = compute_PMI(input_reaction, PMI_extras, PMI_yield)
 
         # Display results
-        if st.button("Compute PMI"):
+        col_btn, col_tip = st.columns([8, 1])
+
+        with col_tip:
+            st.markdown(
+                """
+                <span class="tooltip">ℹ️
+                    <span class="tooltiptext">
+                        <b>Process Mass Intensity (PMI) </b> is the total mass of all materials
+                        used in the process divided by the mass of product obtained.
+                        Lower values (maximum&nbsp;100&nbsp;%) indicate a greener, more material-efficient process.
+                    </span>
+                </span>
+                """,
+                unsafe_allow_html=True,
+            )
+        if st.button("Compute PMI", key="btn_pmi"):
             st.success(f"🅿️ PMI: **{PMI_result:.2f}**")
+
     else:
         st.markdown(
         """
@@ -410,27 +484,47 @@ with column2:
 
     # Compute E factor button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
-            # Retrieve from session
-            E_reactants = st.session_state.reactants
-            E_products = st.session_state.products
-            E_main_index = st.session_state.main_product_index
+        # Retrieve from session
+        E_reactants = st.session_state.reactants
+        E_products = st.session_state.products
+        E_main_index = st.session_state.main_product_index
 
-            E_extras = st.session_state.extras
-            E_yield = st.session_state.prod_yield
+        E_extras = st.session_state.extras
+        E_yield = st.session_state.prod_yield
 
-            # Convert to list to get main product
-            product_mols = list(E_products.keys())
-            main_product = product_mols[E_main_index]
+        # Convert to list to get main product
+        product_mols = list(E_products.keys())
+        main_product = product_mols[E_main_index]
 
-            # Create the Reaction object
-            input_reaction = Reaction(reactants=E_reactants, products=E_products, main_product_index=E_main_index)
+        # Create the Reaction object
+        input_reaction = Reaction(reactants=E_reactants, products=E_products, main_product_index=E_main_index)
 
-            # Compute metrics (replace with your real logic)
-            E_result = compute_E(input_reaction, E_extras, E_yield)
+        # Compute metrics (replace with your real logic)
+        E_result = compute_E(input_reaction, E_extras, E_yield)
 
-            # Display results
-            if st.button("Compute E"):
-                st.success(f"🚮 E: **{E_result:.2f}**")
+        # Display results
+        col_btn, col_tip = st.columns([8, 1])
+
+        with col_btn:
+            compute_e_clicked = st.button("Compute E factor", key="btn_e_factor")
+
+        with col_tip:
+            st.markdown(
+                """
+                <span class="tooltip">ℹ️
+                    <span class="tooltiptext">
+                        <b>E factor (Environmental factor)</b> is the ratio of the total mass of all waste generated 
+                        (side-products, solvents, auxiliaries, etc.) to the mass of desired product obtained.
+                        Lower values indicate a greener, more sustainable process,
+                        as less waste is produced per kilogram of product.
+                    </span>
+                </span>
+                """,
+                unsafe_allow_html=True,
+            )
+        if compute_e_clicked :
+            st.success(f"🚮 E: **{E_result:.2f}**")
+
     else:
         st.markdown(
         """

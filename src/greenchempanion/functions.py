@@ -5,6 +5,7 @@ from typing import Dict
 from rdkit.Chem import rdMolDescriptors
 from rdkit.DataStructs import TanimotoSimilarity
 
+
 #Atom count function that takes hydrogen atoms into account
 
 def Atom_Count_With_H(mol: Mol) -> int:
