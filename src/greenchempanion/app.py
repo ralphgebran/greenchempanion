@@ -6,7 +6,6 @@ from rdkit.Chem import Draw
 from rdkit.Chem import Descriptors
 from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E 
 from functions import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, logP_assessment_molecule, atoms_assessment, structural_assessment
-from streamlit_extras.add_vertical_space import add_vertical_space
 
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="../../assets/logo.ico", layout= "wide")
@@ -425,6 +424,7 @@ with column2:
         """,
         unsafe_allow_html=True,
     )
+        
 
     # Compute PMI button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
@@ -443,11 +443,14 @@ with column2:
         # Create the Reaction object
         input_reaction = Reaction(reactants=PMI_reactants, products=PMI_products, main_product_index=PMI_main_index)
 
-        # Compute metrics (replace with your real logic)
+        # Compute metrics 
         PMI_result = compute_PMI(input_reaction, PMI_extras, PMI_yield)
 
         # Display results
         col_btn, col_tip = st.columns([8, 1])
+        
+        with col_btn:
+            compute_clicked_2 = st.button("Compute PMI", key="btn_pmi")
 
         with col_tip:
             st.markdown(
@@ -462,7 +465,8 @@ with column2:
                 """,
                 unsafe_allow_html=True,
             )
-        if st.button("Compute PMI", key="btn_pmi"):
+        
+        if compute_clicked_2:
             st.success(f"🅿️ PMI: **{PMI_result:.2f}**")
 
     else:
@@ -474,7 +478,7 @@ with column2:
         padding: 0.75rem 1rem;
         border-radius: 0.25rem;
         font-size: 20 px;
-        margin-bottom: 105px
+        margin-bottom: 65px
         ">
         Add at least one reactant and one product to compute PMI.
         </div>
@@ -507,7 +511,7 @@ with column2:
 
         with col_btn:
             compute_e_clicked = st.button("Compute E factor", key="btn_e_factor")
-
+ 
         with col_tip:
             st.markdown(
                 """
@@ -534,7 +538,7 @@ with column2:
         padding: 0.75rem 1rem;
         border-radius: 0.25rem;
         font-size: 20 px;
-        margin-bottom: 80px
+        margin-bottom: 65px
         ">
         Add at least one reactant and one product to compute E.
         </div>
