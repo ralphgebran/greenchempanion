@@ -411,21 +411,56 @@ with column2:
     else:  
         st.markdown(
         """
-        <div style="
-        background-color: rgba(188, 212, 180, 0.3); 
-        color: #28a745;
-        padding: 0.75rem 1rem;
-        border-radius: 0.25rem;
-        font-size: 20 px;
-        margin-bottom: 65px
-        ">
-        Add at least one reactant and one product to compute Atom Economy.
+        <style>
+        .tooltip-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .tooltip-wrapper .tooltip-bubble {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            margin-left: 12px;
+            background-color: white;
+            color: black;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.4;
+            width: 260px;
+            text-align: justify;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .tooltip-wrapper:hover .tooltip-bubble {
+            display: block;
+        }
+        </style>
+
+        <div class="tooltip-wrapper">
+            <div style="
+                background-color: rgba(188, 212, 180, 0.3);
+                color: #28a745;
+                padding: 0.75rem 1rem;
+                border-radius: 0.25rem;
+                font-size: 18px;
+                margin-bottom: 40px;
+            ">
+                Add at least one reactant and one product to compute Atom Economy.
+            </div>
+            <div class="tooltip-bubble">
+                <b>Atom Economy</b> is the percentage of the mass (or atoms) of reactants that ends up in the desired product. Higher values (max 100%) indicate a greener reaction.
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
         
-
     # Compute PMI button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
         # Retrieve from session
@@ -472,19 +507,27 @@ with column2:
     else:
         st.markdown(
         """
-        <div style="
-        background-color: rgba(188, 212, 180, 0.3);
-        color: #28a745;
-        padding: 0.75rem 1rem;
-        border-radius: 0.25rem;
-        font-size: 20 px;
-        margin-bottom: 65px
-        ">
-        Add at least one reactant and one product to compute PMI.
+        <div class="tooltip-wrapper">
+            <div style="
+                background-color: rgba(188, 212, 180, 0.3);
+                color: #28a745;
+                padding: 0.75rem 1rem;
+                border-radius: 0.25rem;
+                font-size: 18px;
+                margin-bottom: 40px;
+            ">
+                Add at least one reactant and one product to compute PMI.
+            </div>
+            <div class="tooltip-bubble">
+                <b>Process Mass Intensity (PMI)</b> is the total mass of all materials used in the
+                process divided by the mass of product obtained. Lower values (max 100%) indicate
+                a greener, more material-efficient process.
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
 
     # Compute E factor button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
@@ -532,19 +575,30 @@ with column2:
     else:
         st.markdown(
         """
-        <div style="
-        background-color: rgba(188, 212, 180, 0.3);
-        color: #28a745;
-        padding: 0.75rem 1rem;
-        border-radius: 0.25rem;
-        font-size: 20 px;
-        margin-bottom: 65px
-        ">
-        Add at least one reactant and one product to compute E.
+        <div class="tooltip-wrapper">
+            <div style="
+                background-color: rgba(188, 212, 180, 0.3);
+                color: #28a745;
+                padding: 0.75rem 1rem;
+                border-radius: 0.25rem;
+                font-size: 18px;
+                margin-bottom: 40px;
+            ">
+                Add at least one reactant and one product to compute E.
+            </div>
+            <div class="tooltip-bubble">
+                <b>E factor (Environmental factor)</b> is the ratio of the total mass of all waste generated
+                (side-products, solvents, auxiliaries, etc.) to the mass of desired product obtained.
+                Lower values indicate a greener, more sustainable process, as less waste is produced
+                per kilogram of product.
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
+
+        
 
 
 st.header("🧑‍🔬 GCP Green Chemistry Evaluation", anchor="GCP_evaluation")
