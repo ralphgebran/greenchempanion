@@ -88,8 +88,11 @@ class Reaction:
         """
         reactants_mass = sum(Descriptors.MolWt(mol) * coeff for mol,coeff in self.reactants.items())
         main_product_mass = Descriptors.MolWt(self.main_product) * self.products[self.main_product]
-        return (main_product_mass / reactants_mass) * 100
-        
+        economy_m = (main_product_mass / reactants_mass) * 100
+        if economy_m > 100 : 
+            raise ValueError("Atom Economy cannot be greater than 100%, recheck your reaction")
+        return economy_m
+
     def isBalanced(self) -> bool:
         """
         Checks whether the reaction is balanced or not.

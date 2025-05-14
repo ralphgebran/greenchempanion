@@ -516,8 +516,8 @@ with column2:
                 padding: 0.75rem 1rem;
                 border-radius: 0.25rem;
                 font-size: 18px;
-                margin-bottom: 40px
-                box-shadow:0 2px 8px rgba(0,0,0,.15);;
+                margin-bottom: 40px;
+                box-shadow:0 2px 8px rgba(0,0,0,.15);
             ">
                 Add at least one reactant and one product to compute PMI.
             </div>
