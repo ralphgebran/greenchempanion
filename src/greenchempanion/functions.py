@@ -298,21 +298,18 @@ def atoms_assessment(react: Reaction) -> tuple[str,str]:
     Warn if any risky elements are present in one of the products.
     Returns (message, color_hex).
     """
-    green_scores = {
-        "C":100, "H":100, "O":100, "N":100, "P":100, "S":100,
-        "B":85,  "Si":85, "Mg":80,  "Fe":75, "Al":70, "Zn":70,
-        "F":60,  "Cl":60, "Br":60,  "I":60,  "Li":60, "Ti":50,
-        "Sn":30, "Pb":20, "Pd":20,  "Hg":20,  "Cd":20, "As":20,
-        "Cr":20, "Ni":20, "Se":20,  "Tl":20,  "Pt":10, "Rh":10
+    # Make the lookup O(1) by storing the elements in a set
+    RISKY_ATOMS = {
+        "F", "Cl", "Br", "I", "Li", "Ti", "Sn", "Pb", "Pd",
+        "Hg", "Cd", "As", "Cr", "Ni", "Se", "Tl", "Pt", "Rh",
     }
 
-    risky_atoms = set()
-    for mol in react.products.keys():  
-        risky_atoms |= {
-            a.GetSymbol()
-            for a in mol.GetAtoms()
-            if green_scores.get(a.GetSymbol(), 50) <= 60
-        }
+    risky_atoms = {
+        atom.GetSymbol()
+        for mol in react.products.keys()
+        for atom in mol.GetAtoms()
+        if atom.GetSymbol() in RISKY_ATOMS
+    }
 
     if risky_atoms:
         return f"⚠️ Concerning atoms: {', '.join(sorted(risky_atoms))}", "#F6DF7E"

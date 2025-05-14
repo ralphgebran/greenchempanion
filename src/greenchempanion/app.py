@@ -300,7 +300,7 @@ with column1 :
             qty = st.session_state.reactants[mol]
             col1, col2, col3 = st.columns([1, 3, 1])
             with col1:
-                st.image(Draw.MolToImage(mol, size=(60, 60)))
+                st.image(Draw.MolToImage(mol, size=(175, 175)))
             with col2:
                 st.markdown(f"**SMILES:** `{Chem.MolToSmiles(mol)}`  \n**Stoichiometric Coefficient:** {qty}")
             with col3:
@@ -331,7 +331,7 @@ with column1 :
             qty = st.session_state.products[mol]
             img_col, txt_col, btn_col = st.columns([1, 3, 1])
             with img_col:
-                st.image(Draw.MolToImage(mol, size=(60, 60)))
+                st.image(Draw.MolToImage(mol, size=(175, 175)))
             with txt_col:
                 st.markdown(f"**SMILES:** `{Chem.MolToSmiles(mol)}`  \n**Stoichiometric Coefficient:** {qty}")
                 if i == st.session_state.main_product_index:
@@ -355,7 +355,7 @@ with column1 :
             qty = st.session_state.extras[mol]
             col1, col2, col3 = st.columns([1, 3, 1])
             with col1:
-                st.image(Draw.MolToImage(mol, size=(60, 60)))
+                st.image(Draw.MolToImage(mol, size=(175, 175)))
             with col2:
                 st.markdown(f"**SMILES:** `{Chem.MolToSmiles(mol)}`  \n**Mass (/kg product):** {qty} g")
             with col3:
