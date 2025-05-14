@@ -53,10 +53,9 @@ path = "src/greenchempanion/__init__.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/greenchempanion"]  
 
-#[tool.pytest.ini_options]
-#testpaths = [
-#    "tests",
-#]
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests",]
 
 [tool.coverage.run]
 omit = [

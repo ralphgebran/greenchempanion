@@ -1,4 +1,4 @@
-from .functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E
+from greenchempanion.functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E
 
 from rdkit import Chem
 from rdkit.Chem.rdchem import Mol
