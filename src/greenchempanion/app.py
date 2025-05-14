@@ -18,6 +18,8 @@ with col1:
 
 with col2:
     st.markdown("## GCP: GreenChemPanion\nInteractive Streamlit Applet showcasing the functions for GCP!")
+    
+st.markdown("---")
 
 st.markdown(
     """
@@ -60,7 +62,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown("---")
 
 st.markdown(
     """
