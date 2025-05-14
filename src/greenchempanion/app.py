@@ -85,6 +85,8 @@ with st.expander("😊 SMILES to Molecule Converter"):
     if M2S_smiles:
         #Developers Easter Egg
         if M2S_smiles == "VRMT":
+            st.balloons()
+            st.snow()
             st.write("Easter Egg :o")
             st.image("../../assets/vrmt.png")
 
