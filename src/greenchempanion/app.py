@@ -4,16 +4,17 @@ import math
 from rdkit import Chem
 from rdkit.Chem import Draw
 from rdkit.Chem import Descriptors
+from streamlit_ketcher import st_ketcher
 from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E 
 from functions import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, logP_assessment_molecule, atoms_assessment, structural_assessment
 
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="../../assets/logo.ico", layout= "wide")
 
-col1, col2 = st.columns([2, 13])  # Adjust width ratio as needed
+col1, col2 = st.columns([2, 13])
 
 with col1:
-    st.image("../../assets/logo_icon.png", width=1000)  # Replace with your image path
+    st.image("../../assets/logo_icon.png", width=1000)
 
 with col2:
     st.markdown("## GCP: GreenChemPanion\nInteractive Streamlit Applet showcasing the functions for GCP!")
@@ -78,6 +79,7 @@ st.markdown(
 st.header("💱 SMILES Converters", anchor="Converters")
 
 # SMILES TO MOLECULE IMAGE DISPLAY
+
 with st.expander("😊 SMILES to Molecule Converter"):
     M2S_smiles = st.text_input("Enter a SMILES:", key ="Mol2Smiles_input")
 
@@ -95,14 +97,13 @@ with st.expander("😊 SMILES to Molecule Converter"):
             input_mol = Chem.MolFromSmiles(M2S_smiles)
             img = Draw.MolToImage(input_mol)
             st.image(img)
-
             #Atom Counts
             st.subheader("ATOM COUNTING 1️⃣2️⃣3️⃣", anchor=False)
             st.write(f"Number of large atoms: {input_mol.GetNumAtoms()}")
             st.write(f"Number of atoms (counting Hydrogens): {Atom_Count_With_H(input_mol)}")
 
+
 # CONVERT A MOLEUCLE DRAWING INTO ITS SMILES 
-from streamlit_ketcher import st_ketcher
 
 def draw_and_get_smiles() -> str:
     """
@@ -114,11 +115,9 @@ def draw_and_get_smiles() -> str:
 
     st.subheader("Draw Molecule and Get SMILES", anchor= False)
     molecule = ""
-    # initialize a counter in session state
     if "ketcher_key" not in st.session_state:
         st.session_state.ketcher_key = 0
 
-    # pass that counter into the component’s key
     ketcher_smiles = st_ketcher(
         molecule, 
         height=600,
@@ -126,7 +125,6 @@ def draw_and_get_smiles() -> str:
     
     st.button("🔄 Reset drawing and SMILES", on_click=lambda: st.session_state.update({"ketcher_key": st.session_state.ketcher_key + 1}))
 
-    # Process the SMILES
     while ketcher_smiles:
         try:
             mol = Chem.MolFromSmiles(ketcher_smiles)
@@ -146,10 +144,7 @@ def draw_and_get_smiles() -> str:
         return ""
 
 with st.expander("✏️ Drawn Molecule to SMILES Converter"):
-    # Call the function from testfunctions.py
     smiles_result = draw_and_get_smiles()
-
-    # Do something with smiles_result
     if smiles_result:
         st.write(f"The SMILES you generated is: {smiles_result}")
         #Atom Counts
@@ -159,9 +154,9 @@ with st.expander("✏️ Drawn Molecule to SMILES Converter"):
 
 
 # REACTION SECTION
+
 st.header("💥 Enter a Reaction", anchor="enter-reaction")
 
-# Storage values
 if "reactants" not in st.session_state:
     st.session_state.reactants = {}
 if "products" not in st.session_state:
@@ -174,6 +169,7 @@ if "prod_yield" not in st.session_state:
     st.session_state.prod_yield = 1 # default to 100%
 
 #ADD MOLECULE EXPANDER
+
 with st.expander("🧪 Add a Molecule"):
 
     # SMILES input
@@ -216,10 +212,11 @@ with st.expander("🧪 Add a Molecule"):
             st.error("⚠️ Enter a valid SMILES format [e.g.: CCO]", icon="🚨")
 
 
-
 #COMMON SOLVENT EXPANDER
+
 with st.expander("💧 Add a Common Solvent (as a volume input)"):
     st.info("ℹ️ Densities are considered at NTP Conditions (20 °C, 1 atm)")
+
     #Creating data frame from csv
     solvent_df = pd.read_csv("../../data/solvent_data.csv", delimiter=";")
     solvent_list = solvent_df["Solvent"].tolist()
@@ -252,6 +249,7 @@ with st.expander("💧 Add a Common Solvent (as a volume input)"):
 
 
 #SOLVENTS EXPANDER
+
 with st.expander("🪣 Add extras (Yield, Solvents, Extraction material...)"):
 
     # SMILES input
@@ -282,7 +280,10 @@ with st.expander("🪣 Add extras (Yield, Solvents, Extraction material...)"):
     E_yield = st.number_input("Enter main product yield (%)", min_value=0.0, max_value=100.0, value =100.0, step = 0.01)
     st.session_state.prod_yield = E_yield/100
 
+# DISPLAY OF REACTION AND COMPUTATION OF GREEN FACTORS
+
 column1, column2 = st.columns(2)
+# Stored reaction
 with column1 :
     st.subheader("📦 Stored Reaction", anchor="stored-reaction")
 
@@ -311,7 +312,6 @@ with column1 :
 
     # Products section
     st.write("##### 🔬 Products")
-
 
     product_mols = list(st.session_state.products.keys())
 
@@ -364,7 +364,8 @@ with column1 :
                     st.rerun()
     else:
         st.info("No extras added.")
-        
+
+# Green Chemistry Factors
 with column2:
     st.subheader("🧮 Compute Factors", anchor="compute-factors")
     # Compute Atom Balance button only if both reactants and products are set
@@ -450,6 +451,7 @@ with column2:
                 border-radius: 0.25rem;
                 font-size: 18px;
                 margin-bottom: 40px;
+                box-shadow:0 2px 8px rgba(0,0,0,.15);
             ">
                 Add at least one reactant and one product to compute Atom Economy.
             </div>
@@ -514,7 +516,8 @@ with column2:
                 padding: 0.75rem 1rem;
                 border-radius: 0.25rem;
                 font-size: 18px;
-                margin-bottom: 40px;
+                margin-bottom: 40px
+                box-shadow:0 2px 8px rgba(0,0,0,.15);;
             ">
                 Add at least one reactant and one product to compute PMI.
             </div>
@@ -583,8 +586,9 @@ with column2:
                 border-radius: 0.25rem;
                 font-size: 18px;
                 margin-bottom: 40px;
+                box-shadow:0 2px 8px rgba(0,0,0,.15);
             ">
-                Add at least one reactant and one product to compute E.
+                Add at least one reactant and one product to compute E factor.
             </div>
             <div class="tooltip-bubble">
                 <b>E factor (Environmental factor)</b> is the ratio of the total mass of all waste generated
@@ -597,9 +601,7 @@ with column2:
         unsafe_allow_html=True,
     )
 
-
-        
-
+# GCP GREEN CHEMISTRY EVALUATION 
 
 st.header("🧑‍🔬 GCP Green Chemistry Evaluation", anchor="GCP_evaluation")
 
@@ -616,8 +618,6 @@ box_style = """
         <p style="color: #000000;">{content}</p>
     </div>
 """
-
-
 
 box_style_2 = """
 <div style="

@@ -6,40 +6,33 @@ from rdkit.Chem import rdMolDescriptors
 from rdkit.DataStructs import TanimotoSimilarity
 
 
-#Atom count function that takes hydrogen atoms into account
-
 def Atom_Count_With_H(mol: Mol) -> int:
     """
     Returns the total number of atoms for a given molecule, counting the H atoms
     
-    Parameters:
+    Arguments:
     - mol: RDKit Mol object
     
     Returns:
     - int: Number of atoms
     """
-    
     H_mol = Chem.AddHs(mol)
     return H_mol.GetNumAtoms()
 
-
-# Canonicalize Smiles
 
 def canonicalize_smiles(smiles : str) -> str:
     """
     Returns the canonicalized SMILES for a given SMILES string.
 
-    Parameters:
-    - smile : A valid SMILES string representing a molecule.
+    Arguments:
+    - smiles : A valid SMILES string representing a molecule.
 
     Returns:
     - str: The canonicalized SMILES string, or None if input is invalid
     """
-    
     mol = Chem.MolFromSmiles(smiles)
     return Chem.MolToSmiles(mol)
 
-# Reaction Class
 
 class Reaction:
     """
@@ -54,7 +47,6 @@ class Reaction:
     - Atom_Economy_A(): Calculates and returns the atom economy of the reaction, based on numbers of atoms.
     - Atom_Economy_M(): Calculates and returns the atom economy of the reaction, based on molar masses.
     """
-    
     def __init__(self, reactants: Dict[Mol, int], products: Dict[Mol, int], main_product_index: int = 0):
         self.reactants = reactants
         self.products = products
@@ -70,11 +62,9 @@ class Reaction:
         
         self.main_product = list(products.keys())[main_product_index]
 
-    # Atom Economy function using number of atoms
     def Atom_Economy_A(self) -> float:
         """
         Calculates the atom economy of the reaction, based on numbers of atoms.
-
         (Number of atoms in main product / Number of atoms in all reactants) * 100
 
         Returns:
@@ -88,11 +78,9 @@ class Reaction:
         else :
             return economy
     
-    # Atom Economy function using molar masses
     def Atom_Economy_M(self) -> float:
         """
         Calculates the atom economy of the reaction, based on molar masses.
-
         (Molar mass of main product / Total molar mass of reactants) * 100
 
         Returns:
@@ -102,7 +90,6 @@ class Reaction:
         main_product_mass = Descriptors.MolWt(self.main_product) * self.products[self.main_product]
         return (main_product_mass / reactants_mass) * 100
         
-    # Reaction Balance check
     def isBalanced(self) -> bool:
         """
         Checks whether the reaction is balanced or not.
@@ -126,13 +113,9 @@ class Reaction:
         return reac_count == prod_count
     
 
-
-# PMI and E-Factor Functions
-
 def compute_PMI(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float) -> float:
     """
     Computes the Process Mass Intensity (PMI) per kg of main product.
-    
     (Total mass of chemical inputs / 1kg of product) * 100
 
     Inputs:
@@ -143,8 +126,7 @@ def compute_PMI(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float)
     Returns:
     - PMI (float): total input mass (g) per 1 kg of product
     """
-    from rdkit.Chem import Descriptors
-
+    
     # Error Handling
     if not isinstance(reaction, Reaction):
         raise TypeError("Expected a GCP Reaction object for 'reaction'")
@@ -182,7 +164,6 @@ def compute_PMI(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float)
 def compute_E(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float) -> float:
     """
     Computes the Environmental Factor (E-Factor).
-
     E-Factor = Waste per kilogram of product
 
     Inputs:
@@ -193,7 +174,6 @@ def compute_E(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float) -
     Returns:
     - E-Factor (float)
     """
-    from rdkit.Chem import Descriptors
 
     # Error Handling
     if not isinstance(reaction, Reaction):
@@ -232,8 +212,7 @@ def compute_E(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float) -
 
 def get_solvent_info(extras: Dict[Chem.Mol, float]) -> tuple[str, str]:
     """
-    Given extras={Mol: mass_in_g_per_kg_product}, returns
-    a short verdict + a color hex code (red/yellow/green).
+    Given extras={Mol: mass_in_g_per_kg_product}, returns a short verdict + a color hex code (red/yellow/green).
     """
     Green      = {"O", "CCO", "CC(=O)OCC", "CC1COCC1", "O=C=O", "CC(O)C", "CO"}
     Bad        = {"ClCCl", "ClC(Cl)Cl", "c1ccccc1", "ClC(Cl)(Cl)Cl", "CCCCCC", "CCCCC"}
@@ -248,7 +227,6 @@ def get_solvent_info(extras: Dict[Chem.Mol, float]) -> tuple[str, str]:
         else:
             seen["Acceptable"] += 1
 
-    # verdict logic
     if seen["Bad"] > 0:
         return "⚠️ Bad solvent detected!", "#F03335"
     elif seen["Acceptable"] > 0:
@@ -258,8 +236,7 @@ def get_solvent_info(extras: Dict[Chem.Mol, float]) -> tuple[str, str]:
 
 
 def waste_efficiency(E : float) -> tuple[str,str] :
-    """ 
-    Returns if the E factor is within normal ranges, along with a color hex code """
+    """ Returns if the E factor is within normal ranges, along with a color hex code """
     if E <= 1:
         return "Great Waste Efficiency, with stellar E factor ✅", "#4BAF24"
     elif 1 < E <= 10:
@@ -273,9 +250,7 @@ def waste_efficiency(E : float) -> tuple[str,str] :
     
     
 def PMI_assesment(PMI : float) -> tuple[str,str] :
-    """ 
-    Returns if the PMI factor is within normal ranges, along with a color hex code 
-    """
+    """ Returns if the PMI factor is within normal ranges, along with a color hex code """
     if  PMI <= 10:
         return "Great Process Mass Intensity ✅","#88DF66"
     elif 10 < PMI <= 50:
@@ -287,9 +262,7 @@ def PMI_assesment(PMI : float) -> tuple[str,str] :
 
 
 def Atom_ec_assesment(ae : float)  -> tuple[str,str] :
-    """ 
-    Returns if the atom economy is within normal ranges, along with a color hex code 
-    """
+    """ Returns if the atom economy is within normal ranges, along with a color hex code """
     if 89 < ae <= 100:
         return "Amazing atom economy ✅", "#4BAF24"
     elif  79 < ae <= 89:
@@ -304,7 +277,6 @@ def Atom_ec_assesment(ae : float)  -> tuple[str,str] :
         return " Doublecheck your reaction, Impossible Atom economy "
     
   
-    
 def logP_assessment_molecule(lo: float) -> tuple[str,str]:
     """Environmental friendliness based on MolLogP (basis as ideal is 2)."""
     if 1.5<= lo <= 2.5:
