@@ -121,7 +121,7 @@ def compute_PMI(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float)
     Computes the Process Mass Intensity (PMI) per kg of main product.
     (Total mass of chemical inputs / 1kg of product) * 100
 
-    Inputs:
+    Arguments:
     - reaction: GCP Reaction object (with reactants, products, and main product index)
     - extras: Dictionary containing solvents, extraction material and others, with their mass [in grams] per kg of product {Mol: float}
     - prod_yield: Yield of main product (0 < float <= 1)
@@ -169,7 +169,7 @@ def compute_E(reaction: Reaction, extras: Dict[Mol, float], prod_yield: float) -
     Computes the Environmental Factor (E-Factor).
     E-Factor = Waste per kilogram of product
 
-    Inputs:
+    Arguments:
     - reaction: GCP Reaction object
     - extras: Dictionary {Mol: float} for solvents, etc.
     - prod_yield: Yield of main product (0 < float <= 1)

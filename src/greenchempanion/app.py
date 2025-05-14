@@ -60,8 +60,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-#st.title("GCP: GreenChemPanion", anchor= False) #TITLE
-#st.write("Interactive Streamlit Applet showcasing the functions for GCP!") 
 st.markdown("---")
 
 st.markdown(
