@@ -9,10 +9,16 @@ requires-python = ">=3.10"
 license = {file = "LICENSE"}
 description = "Your interactive companion for Green Chemistry"
 dependencies = [
-     "rdkit",
+    "rdkit",
+    "streamlit",
+    "streamlit-ketcher",
+    "pandas"
 ]
 authors = [
-    {name = "Ralph GEBRAN", email = "ralphgebran41@gmail.com"}
+    {name = "Ralph GEBRAN", email = "ralphgebran41@gmail.com"},
+    {name = "Marc AL HACHEM", email = "marc.alhachem@epfl.ch"},
+    {name = "Tais Thomas", email = "tais.thomas@epfl.ch"},
+    {name = "Valentine WIEN", email = "valentine.wien@epfl.ch"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
