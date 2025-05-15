@@ -284,14 +284,12 @@ def logP_assessment_molecule(lo: float) -> tuple[str,str]:
     """Environmental friendliness based on MolLogP (basis as ideal is 2)."""
     if 1.5<= lo <= 2.5:
         return f"Excellent Log P of {lo:.2f}", "#4BAF24"
-    if 0 <= lo <= 4:
+    if 1 <= lo < 4:
         return f"✅ LogP of {lo:.2f}, within acceptable range", "#88DF66"
-    elif -1 <= lo < 0 or 4 < lo <= 6:
-        return f"⚠️ LogP of {lo:.2f}, slightly outside ideal", "#F6DF7E"
+    elif 0 <= lo < 1 or 4 <= lo <= 4.5:
+        return f"⚠️ LogP of {lo:.2f}, caution", "#F6DF7E"
     else:
-        return f"🚨 LogP of {lo:.2f}, outside acceptable limits", "#F03335"
-        
-        
+        return f"🚨 LogP of {lo:.2f}, outside of acceptable limits, high concern", "#F03335"
 
 def atoms_assessment(react: Reaction) -> tuple[str,str]:
     """
