@@ -7,7 +7,7 @@ from rdkit.Chem import Descriptors
 from streamlit_ketcher import st_ketcher
 from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E 
 from functions import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, logP_assessment_molecule, atoms_assessment, structural_assessment
-from app_utilities import inject_base_css, show_info_box, html_box, tooltip_icon, missing_input_alert, dual_metric_box
+from app_utilities import (inject_base_css, show_info_box, html_box, tooltip_icon, missing_input_alert, dual_metric_box, title_with_icon, SOLVENT_TIP, LOGP_TIP, AA_TIP, SAA_TIP, E_FACTOR_TIP, PMI_TIP, AE_M_TIP, AE_A_TIP)
 
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="../../assets/logo.ico", layout= "wide")
@@ -470,35 +470,35 @@ if st.session_state.reactants and st.session_state.products:
     with col1:
         if st.session_state.extras:
             solv_text, solv_color = get_solvent_info(st.session_state.extras)
-            show_info_box("🌱 Solvent Quality Check", content=solv_text, color=solv_color)
+            show_info_box(title_with_icon("🌱 Solvent Quality Check", SOLVENT_TIP), content=solv_text, color=solv_color)
         else:
             show_info_box("🌱 Solvent Quality Check",
               "Seems like no solvent was used. Nice Job!")
         Log_P = Descriptors.MolLogP(input_reaction.main_product)
         log_text, log_color = logP_assessment_molecule(Log_P)
-        show_info_box("🌍 Main Product LogP", content=log_text, color=log_color)
+        show_info_box(title_with_icon("🌍 Main Product LogP", LOGP_TIP), content=log_text, color=log_color)
 
         a_ass_text, a_ass_color = atoms_assessment(input_reaction)
-        show_info_box("🔎 Atom Assessment", content=a_ass_text, color=a_ass_color)
+        show_info_box(title_with_icon("🔎 Atom Assessment", AA_TIP), content=a_ass_text, color=a_ass_color)
 
         struct_text, struct_color = structural_assessment(input_reaction)
-        show_info_box("🧬 Structural Attributes Analysis", content=struct_text, color=struct_color)
+        show_info_box(title_with_icon("🧬 Structural Attributes Analysis", SAA_TIP), content=struct_text, color=struct_color)
 
     with col2:
         score_text, color = waste_efficiency(E_result)
-        show_info_box("🚮 E-Factor: Waste Efficiency", content=score_text, color=color)
+        show_info_box(title_with_icon("🚮 E-Factor: Waste Efficiency", E_FACTOR_TIP), content=score_text, color=color)
 
         pmi_text, pmi_color = PMI_assesment(PMI_result)
-        show_info_box("🅿️ PMI", content=pmi_text, color=pmi_color)
+        show_info_box(title_with_icon("🅿️ PMI",PMI_TIP), content=pmi_text, color=pmi_color)
 
         try:
             atom_economy_m_result = input_reaction.Atom_Economy_M()
             atom_economy_a_result = input_reaction.Atom_Economy_A()
             ae_m_text, ae_m_color = Atom_ec_assesment(atom_economy_m_result)
             ae_a_text, ae_a_color = Atom_ec_assesment(atom_economy_a_result)
-            
-            dual_metric_box("⚖️ Atom Econ. (Molar Mass)", ae_m_text, ae_m_color,
-                "⚛️ Atom Econ. (Atom no.)",   ae_a_text, ae_a_color)
+
+            dual_metric_box(title_with_icon("⚖️ Atom Econ. (Molar Mass)", AE_M_TIP), ae_m_text, ae_m_color,
+                title_with_icon("⚛️ Atom Econ. (Atom no.)", AE_A_TIP), ae_a_text, ae_a_color)
 
         except ValueError as e:
             st.error(f"{e}", icon="🚨")
@@ -509,16 +509,18 @@ else:
     with col1:
         if st.session_state.extras:
             solv_text, solv_color = get_solvent_info(st.session_state.extras)
-            show_info_box("🌱 Solvent Quality Check", content=solv_text, color=solv_color)
+            show_info_box(title_with_icon("🌱 Solvent Quality Check", SOLVENT_TIP), content=solv_text, color=solv_color)
         else:
-            show_info_box("🌱 Solvent Quality Check", content="Seems like no solvent was used. Nice Job!")
+            show_info_box(title_with_icon("🌱 Solvent Quality Check", SOLVENT_TIP), content="Seems like no solvent was used. Nice Job!")
             
-        show_info_box("🌍 Main Product LogP", content="Add a Reaction!")
-        show_info_box("🔎 Atom Assessment", content="Add a Reaction!")
-        show_info_box("🧬 Structural Attributes Analysis", content="Add a Reaction!")
+        show_info_box(title_with_icon("🌍 Main Product LogP", LOGP_TIP), content="Add a Reaction!")
+        show_info_box(title_with_icon("🔎 Atom Assessment", AA_TIP), content="Add a Reaction!")
+        show_info_box(title_with_icon("🧬 Structural Attributes Analysis", SAA_TIP), content="Add a Reaction!")
 
     with col2:
-        show_info_box("🚮 E-Factor: Waste Efficiency", content="Add a Reaction!")
-        show_info_box("🅿️ PMI", content="Add a Reaction!")
-        show_info_box("⚖️ Atom Econ. (Molar Mass)", content="Add a Reaction!")
-        show_info_box("⚛️ Atom Econ. (Atom no.)", content="Add a Reaction!")
+        show_info_box(title_with_icon("🚮 E-Factor: Waste Efficiency", E_FACTOR_TIP), content="Add a Reaction!")
+        show_info_box(title_with_icon("🅿️ PMI", PMI_TIP),content="Add a Reaction!")
+        show_info_box(title_with_icon("⚖️ Atom Econ. (Molar Mass)", AE_M_TIP), content="Add a Reaction!")
+        show_info_box(title_with_icon("⚛️ Atom Econ. (Atom no.)", AE_A_TIP), content="Add a Reaction!")
+
+    

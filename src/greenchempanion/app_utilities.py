@@ -13,7 +13,7 @@ def inject_base_css() -> None:
                 text-align:left; padding:6px 12px; border:2px solid #ccc;
                 border-radius:6px; position:absolute; z-index:1;
                 top:125%; left:50%; transform: translateX(-50%);
-                box-shadow:0 2px 8px rgba(0,0,0,0.15); opacity:0; transition:opacity .25s;
+                box-shadow:0 2px 8px rgba(0,0,0,0.15); opacity:0; transition:opacity .25s; top:-1px; 
             }
             .tooltip:hover .tooltiptext {visibility:visible; opacity:1;}
 
@@ -118,3 +118,50 @@ def dual_metric_box(title_left: str, txt_left: str, color_left: str,
       </div>
     </div>
     """, unsafe_allow_html=True)
+
+SOLVENT_TIP = """
+marc doit ajouter description
+"""
+
+LOGP_TIP = """
+<b>Log P</b> measures molecular hydrophobicity.<br>
+• Green-chemistry target: <b>1 – 3</b>.<br>
+• <b>&gt; 4.5</b> ⇒ risk of persistence &amp; bio-accumulation.<br>
+• <b>&lt; 1</b> ⇒ high water dispersion &amp; reduced efficacy.
+"""
+
+AA_TIP = """
+doit ajouter atom assesment info
+"""
+
+SAA_TIP = """
+structural attributes analysis
+"""
+
+E_FACTOR_TIP = """
+• E factor ≤ 1 → Great, almost no waste generated
+• E factor 1–5 → Good—manageable levels of waste typical for well-optimized processes
+• E factor > 5 → Poor—significant waste, process needs improvement
+"""
+
+PMI_TIP = """
+• **PMI < 10 ** → Excellent material efficiency (very little waste)
+• **PMI 10–50 ** → Industry-average, acceptable but room for improvement
+• **PMI > 50 ** → High waste, low material efficiency
+"""
+
+AE_M_TIP = """
+• Atom Economy ≥ 75% → Excellent incorporation of reactant mass into product
+• Atom Economy 50–75% → Moderate efficiency, some waste by‐products
+• Atom Economy < 50% → Poor efficiency, significant atom wastage
+"""
+
+AE_A_TIP = """
+• Atom Economy ≥ 75 % → Excellent, most atoms end up in the product
+• Atom Economy 50–75 % → Moderate, some atoms are lost as by-products
+• Atom Economy < 50 % → Poor, significant atom wastage
+"""
+
+def title_with_icon(title: str, tip_html: str) -> str:
+    """Return `title` followed by the hoverable ℹ icon."""
+    return f"{title} {tooltip_icon('ℹ', tip_html)}"
