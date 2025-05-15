@@ -21,34 +21,19 @@ A Practical Programming for Chemistry project by Marc A, Ralph G, Tais T, Valent
 
 First start by cloning the GCP Repository:
 ```
-git clone https://github.com/ralphgebran/greenchempanion
+$ git clone https://github.com/ralphgebran/greenchempanion
 ```
 
-Next step is to install the environement containing all GreenChemPanion dependencies!
+Next step is to pip install the module, along with all of its dependencies!
 
-Make sure your terminal is on the folder containing the .yml files, which should be the `src` folder.
+Making sure your terminal is on the ROOT folder of the project (the one where `src` and `pyproject.toml` are located), you can run the following command:
 ```
-cd "YourRepoLocation"/src
-```
-
-- If you are on Windows 🪟:
-```
-conda env create -f env_win.yml
+$ pip install -e .
 ```
 
-- If you are on Mac 🍏:
+If you would like to run the pytest functions, you should also install the optional dependencies for tests:
 ```
-conda env create -f env_mac.yml
-```
-
-Activate the environment
-```
-conda activate gcp
-```
-
-Then, making sure your terminal is on the ROOT folder of the project (the one where `src` and `pyproject.toml` are located), you can pip install the project:
-```
-(gcp) pip install -e .
+$ pip install -e .[test]
 ```
 
 Now GCP should be present in your environment, and you can use its functions by importing it in your python files!
@@ -59,10 +44,10 @@ from greenchempanion import ...
 If you need jupyter lab, install it 
 
 ```
-(gcp) $ pip install jupyterlab
+$ pip install jupyterlab
 ```
 
-## 🔥 Features
+## 🔥 Features [MIAW MIAW PART NOT FINAL]
 GCP provides many tools for Green Chemistry purposes, through its python functions and integrated Streamlit applet.
 
 What GCP has to offer:
@@ -71,10 +56,10 @@ What GCP has to offer:
 - Check if a given reaction is well balanced, using the `isBalanced()` method.
 - Compute the PMI and the E-factor of a given process (reaction + extra material used + yield) using `compute_PMI` and `compute_E` functions
 - Get a Green Chemistry assessment of your process (Potentially polluting atoms, groups and solvents in the reaction, logP  evaluation ...) on the Streamlit app.
-- ... and much more! You can find details on all functionalities in the `mini_documentation.md` document.
+- ... and much more! You can find more details in the `report.ipynb` document.
 
 
-## 🛠️ Development installation
+## 🛠️ Development installation [I DONT THINK WE'RE KEEPING THIS]
 
 Initialize Git (only for the first time). 
 
