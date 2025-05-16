@@ -120,7 +120,10 @@ def dual_metric_box(title_left: str, txt_left: str, color_left: str,
     """, unsafe_allow_html=True)
 
 SOLVENT_TIP = """
-marc doit ajouter description
+• Green solvents are harmless: low-toxicity, biodegradable (e.g. water, ethanol, methanol). <br>
+• Bad solvents carry harmful traits: chlorinated (toxic, ozone-depleting), <br>
+  aromatic (carcinogenic), or long-chain alkanes (volatile, persistent).<br>
+• Acceptable covers all others.
 """
 
 LOGP_TIP = """
@@ -131,34 +134,38 @@ LOGP_TIP = """
 """
 
 AA_TIP = """
-doit ajouter atom assesment info
+• Checks reaction products for risky atoms (e.g., heavy metals, halogens). <br>
+• Flags presence of concerning elements (F, Cl, Br, Pb, Hg, etc.).
 """
 
 SAA_TIP = """
-structural attributes analysis
+Evaluates chemical reaction products for structural concerns by checking: <br>
+• Presence of long chains with more than 10 heavy atoms. <br>
+• Existence or similarity to problematic chemical groups such as <br>
+  carbon oxides, nitro groups, azo groups, or dichloro-aromatic groups.
 """
 
 E_FACTOR_TIP = """
-• E factor ≤ 1 → Great, almost no waste generated
-• E factor 1–5 → Good—manageable levels of waste typical for well-optimized processes
+• E factor ≤ 1 → Great, almost no waste generated <br>
+• E factor 1–5 → Good—manageable levels of waste typical for well-optimized processes <br>
 • E factor > 5 → Poor—significant waste, process needs improvement
 """
 
 PMI_TIP = """
-• **PMI < 10 ** → Excellent material efficiency (very little waste)
-• **PMI 10–50 ** → Industry-average, acceptable but room for improvement
-• **PMI > 50 ** → High waste, low material efficiency
+• PMI < 10 → Excellent material efficiency (very little waste) <br>
+• PMI 10–50 → Industry-average, acceptable but room for improvement <br>
+• PMI > 50 → High waste, low material efficiency
 """
 
 AE_M_TIP = """
-• Atom Economy ≥ 75% → Excellent incorporation of reactant mass into product
-• Atom Economy 50–75% → Moderate efficiency, some waste by‐products
-• Atom Economy < 50% → Poor efficiency, significant atom wastage
+• Atom Economy ≥ 75% → Excellent incorporation of reactant mass into product <br>
+• Atom Economy 50–75% → Moderate efficiency <br>
+• Atom Economy < 50% → Poor efficiency, significant atom waste
 """
 
 AE_A_TIP = """
-• Atom Economy ≥ 75 % → Excellent, most atoms end up in the product
-• Atom Economy 50–75 % → Moderate, some atoms are lost as by-products
+• Atom Economy ≥ 75 % → Excellent, most atoms end up in the product <br>
+• Atom Economy 50–75 % → Moderate, some atoms are lost as by-products <br>
 • Atom Economy < 50 % → Poor, significant atom wastage
 """
 
