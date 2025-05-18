@@ -5,8 +5,9 @@ from rdkit import Chem
 from rdkit.Chem import Draw
 from rdkit.Chem import Descriptors
 from streamlit_ketcher import st_ketcher
+
 from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E 
-from functions import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, logP_assessment_molecule, atoms_assessment, structural_assessment
+from assessments import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, Atom_ec_m_assesment, logP_assessment_molecule, atoms_assessment, structural_assessment
 from app_utilities import (inject_base_css, show_info_box, html_box, tooltip_icon, missing_input_alert, dual_metric_box, title_with_icon, SOLVENT_TIP, LOGP_TIP, AA_TIP, SAA_TIP, E_FACTOR_TIP, PMI_TIP, AE_M_TIP, AE_A_TIP)
 
 
@@ -315,99 +316,11 @@ with column1 :
         st.info("No extras added.")
 
 # Green Chemistry Factors
+
 from app_utilities import tooltip_icon
+
 with column2:
     st.subheader("🧮 Compute Factors", anchor="compute-factors")
-    # Compute Atom Balance button only if both reactants and products are set
-    if st.session_state.reactants and st.session_state.products:
-        # Retrieve from session
-        R_reactants = st.session_state.reactants
-        R_products = st.session_state.products
-        R_main_index = st.session_state.main_product_index
-
-        # Convert to list to get main product
-        product_mols = list(R_products.keys())
-        main_product = product_mols[R_main_index]
-
-        # Create the Reaction object
-        input_reaction = Reaction(reactants=R_reactants, products=R_products, main_product_index=R_main_index)
-
-        col_btn, col_tip = st.columns([8, 1])
-
-        with col_btn:
-            compute_clicked = st.button("Compute Atom Economy", key="btn_atom_economy")
-
-        with col_tip:
-            col_tip.markdown(
-                tooltip_icon("ℹ️", "<b>Atom Economy</b> is the percentage of the mass (or atoms) of reactants that ends up in the desired product. Higher values (max 100%) indicate a greener reaction."),
-                unsafe_allow_html=True
-            )
-        if compute_clicked:
-            try:
-                atom_economy_m_result = input_reaction.Atom_Economy_M()
-                atom_economy_a_result = input_reaction.Atom_Economy_A()
-                st.success(f"⚖️ Atom Economy based on Molar Mass: **{atom_economy_m_result:.2f}%**")
-                st.success(f"⚛️ Atom Economy based on Number of Atoms: **{atom_economy_a_result:.2f}%**")
-            except ValueError as e:
-                st.error(f"{e}", icon="🚨")
-                    
-    else:  
-        missing_input_alert(
-        "Add at least one reactant and one product to compute Atom Economy.",
-        "<b>Atom Economy</b> is the percentage of the mass (or atoms) of reactants that ends up in the desired product. Higher values (max 100%) indicate a greener reaction."
-        )
-
-        
-    # Compute PMI button only if both reactants and products are set
-    if st.session_state.reactants and st.session_state.products:
-        # Retrieve from session
-        PMI_reactants = st.session_state.reactants
-        PMI_products = st.session_state.products
-        PMI_main_index = st.session_state.main_product_index
-
-        PMI_extras = st.session_state.extras
-        PMI_yield = st.session_state.prod_yield
-
-        # Convert to list to get main product
-        product_mols = list(PMI_products.keys())
-        main_product = product_mols[PMI_main_index]
-
-        # Create the Reaction object
-        input_reaction = Reaction(reactants=PMI_reactants, products=PMI_products, main_product_index=PMI_main_index)
-
-        # Compute metrics 
-        PMI_result = compute_PMI(input_reaction, PMI_extras, PMI_yield)
-
-        # Display results
-        col_btn, col_tip = st.columns([8, 1])
-        
-        with col_btn:
-            compute_clicked_2 = st.button("Compute PMI", key="btn_pmi")
-
-        with col_tip:
-            col_tip.markdown(
-                tooltip_icon("ℹ️",
-                    """""
-                    <b>Process Mass Intensity (PMI) </b> is the total mass of all materials
-                    used in the process divided by the mass of product obtained.
-                    Lower values (maximum&nbsp;100&nbsp;%) indicate a greener, more material-efficient process.
-                    """
-                    ),
-                unsafe_allow_html=True
-            )
-        if compute_clicked_2:
-            st.success(f"🅿️ PMI: **{PMI_result:.2f}**")
-
-    else:
-        missing_input_alert(
-        "Add at least one reactant and one product to compute PMI.",
-        """
-        <b>Process Mass Intensity (PMI) </b> is the total mass of all materials
-        used in the process divided by the mass of product obtained.
-        Lower values (maximum&nbsp;100&nbsp;%) indicate a greener, more material-efficient process.
-        """
-        )
-
 
     # Compute E factor button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
@@ -452,13 +365,104 @@ with column2:
     else:
         missing_input_alert(
         "Add at least one reactant and one product to compute E factor.",
-        """""
+        """
         <b>E factor (Environmental factor)</b> is the ratio of the total mass of all waste generated 
         (side-products, solvents, auxiliaries, etc.) to the mass of desired product obtained.
         Lower values indicate a greener, more sustainable process,
         as less waste is produced per kilogram of product.
         """
         )
+        
+    # Compute PMI button only if both reactants and products are set
+    if st.session_state.reactants and st.session_state.products:
+        # Retrieve from session
+        PMI_reactants = st.session_state.reactants
+        PMI_products = st.session_state.products
+        PMI_main_index = st.session_state.main_product_index
+
+        PMI_extras = st.session_state.extras
+        PMI_yield = st.session_state.prod_yield
+
+        # Convert to list to get main product
+        product_mols = list(PMI_products.keys())
+        main_product = product_mols[PMI_main_index]
+
+        # Create the Reaction object
+        input_reaction = Reaction(reactants=PMI_reactants, products=PMI_products, main_product_index=PMI_main_index)
+
+        # Compute metrics 
+        PMI_result = compute_PMI(input_reaction, PMI_extras, PMI_yield)
+
+        # Display results
+        col_btn, col_tip = st.columns([8, 1])
+        
+        with col_btn:
+            compute_clicked_2 = st.button("Compute PMI", key="btn_pmi")
+
+        with col_tip:
+            col_tip.markdown(
+                tooltip_icon("ℹ️",
+                    """
+                    <b>Process Mass Intensity (PMI) </b> is the total mass of all materials
+                    used in the process divided by the mass of product obtained.
+                    Lower values (maximum&nbsp;100&nbsp;%) indicate a greener, more material-efficient process.
+                    """
+                    ),
+                unsafe_allow_html=True
+            )
+        if compute_clicked_2:
+            st.success(f"🅿️ PMI: **{PMI_result:.2f}**")
+
+    else:
+        missing_input_alert(
+        "Add at least one reactant and one product to compute PMI.",
+        """
+        <b>Process Mass Intensity (PMI) </b> is the total mass of all materials
+        used in the process divided by the mass of product obtained.
+        Lower values (maximum&nbsp;100&nbsp;%) indicate a greener, more material-efficient process.
+        """
+        )
+
+        
+    # Compute Atom Balance button only if both reactants and products are set
+    if st.session_state.reactants and st.session_state.products:
+        # Retrieve from session
+        R_reactants = st.session_state.reactants
+        R_products = st.session_state.products
+        R_main_index = st.session_state.main_product_index
+
+        # Convert to list to get main product
+        product_mols = list(R_products.keys())
+        main_product = product_mols[R_main_index]
+
+        # Create the Reaction object
+        input_reaction = Reaction(reactants=R_reactants, products=R_products, main_product_index=R_main_index)
+
+        col_btn, col_tip = st.columns([8, 1])
+
+        with col_btn:
+            compute_clicked = st.button("Compute Atom Economy", key="btn_atom_economy")
+
+        with col_tip:
+            col_tip.markdown(
+                tooltip_icon("ℹ️", "<b>Atom Economy</b> is the percentage of the mass (or atoms) of reactants that ends up in the desired product. Higher values (max 100%) indicate a greener reaction."),
+                unsafe_allow_html=True
+            )
+        if compute_clicked:
+            try:
+                atom_economy_m_result = input_reaction.Atom_Economy_M()
+                atom_economy_a_result = input_reaction.Atom_Economy_A()
+                st.success(f"⚖️ Atom Economy based on Molar Mass: **{atom_economy_m_result:.2f}%**")
+                st.success(f"⚛️ Atom Economy based on Number of Atoms: **{atom_economy_a_result:.2f}%**")
+            except ValueError as e:
+                st.error(f"{e}", icon="🚨")
+                    
+    else:  
+        missing_input_alert(
+        "Add at least one reactant and one product to compute Atom Economy.",
+        "<b>Atom Economy</b> is the percentage of the mass (or atoms) of reactants that ends up in the desired product. Higher values (max 100%) indicate a greener reaction."
+        )
+
 
 # GCP GREEN CHEMISTRY EVALUATION 
 
@@ -494,7 +498,7 @@ if st.session_state.reactants and st.session_state.products:
         try:
             atom_economy_m_result = input_reaction.Atom_Economy_M()
             atom_economy_a_result = input_reaction.Atom_Economy_A()
-            ae_m_text, ae_m_color = Atom_ec_assesment(atom_economy_m_result)
+            ae_m_text, ae_m_color = Atom_ec_m_assesment(atom_economy_m_result)
             ae_a_text, ae_a_color = Atom_ec_assesment(atom_economy_a_result)
 
             dual_metric_box(title_with_icon("⚖️ Atom Econ. (Molar Mass)", AE_M_TIP), ae_m_text, ae_m_color,
@@ -520,7 +524,7 @@ else:
     with col2:
         show_info_box(title_with_icon("🚮 E-Factor: Waste Efficiency", E_FACTOR_TIP), content="Add a Reaction!")
         show_info_box(title_with_icon("🅿️ PMI", PMI_TIP),content="Add a Reaction!")
-        show_info_box(title_with_icon("⚖️ Atom Econ. (Molar Mass)", AE_M_TIP), content="Add a Reaction!")
-        show_info_box(title_with_icon("⚛️ Atom Econ. (Atom no.)", AE_A_TIP), content="Add a Reaction!")
+        dual_metric_box(title_with_icon("⚖️ Atom Econ. (Molar Mass)", AE_M_TIP),"Add a Reaction!","#f9f9f9",
+            title_with_icon("⚛️ Atom Econ. (Atom no.)", AE_A_TIP), "Add a Reaction!", "#f9f9f9", "#28a745","#28a745","#000")
 
     

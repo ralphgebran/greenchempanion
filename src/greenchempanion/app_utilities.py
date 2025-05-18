@@ -102,22 +102,28 @@ def missing_input_alert(message: str, tooltip_html: str) -> None:
     </div>
     """, unsafe_allow_html=True)
 
-def dual_metric_box(title_left: str, txt_left: str, color_left: str,
-                    title_right: str, txt_right: str, color_right: str) -> None:
+    
+def dual_metric_box(
+    title_left: str, txt_left: str, color_left: str, 
+    title_right: str, txt_right: str, color_right: str, 
+    border_color: str = "#000", title_color="#000", text_color: str = "#000") -> None:
     st.markdown(f"""
-    <div style="display:flex; border:2px solid #000; border-radius:10px;
-                overflow:hidden; margin:10px;">
-      <div style="flex:1; background:{color_left}; padding:20px; text-align:center;
-                  border-right:1px solid #000;">
-          <h4 style="margin:0;">{title_left}</h4>
-          <p style="margin:5px 0 0;">{txt_left}</p>
+    <div style="display:flex; border:2px solid {border_color}; border-radius:10px;
+                overflow:visible; margin:10px;">
+      <div style="flex:1; background:{color_left}; color:{text_color}; padding:20px; text-align:center;
+                  border-right:1px solid {border_color};
+                  border-top-left-radius:10px; border-bottom-left-radius:10px;">
+          <h4 style="margin:0; color:{title_color};">{title_left}</h4>
+          <p style="margin:5px 0 0; color:{text_color};">{txt_left}</p>
       </div>
-      <div style="flex:1; background:{color_right}; padding:20px; text-align:center;">
-          <h4 style="margin:0;">{title_right}</h4>
-          <p style="margin:5px 0 0;">{txt_right}</p>
+      <div style="flex:1; background:{color_right}; color:{text_color}; padding:20px; text-align:center;
+                  border-top-right-radius:10px; border-bottom-right-radius:10px;">
+          <h4 style="margin:0; color:{title_color};">{title_right}</h4>
+          <p style="margin:5px 0 0; color:{text_color};">{txt_right}</p>
       </div>
     </div>
     """, unsafe_allow_html=True)
+
 
 SOLVENT_TIP = """
 • Green solvents are harmless: low-toxicity, biodegradable (e.g. water, ethanol, methanol). <br>
@@ -158,16 +164,22 @@ PMI_TIP = """
 """
 
 AE_M_TIP = """
-• Atom Economy ≥ 75% → Excellent incorporation of reactant mass into product <br>
-• Atom Economy 50–75% → Moderate efficiency <br>
-• Atom Economy < 50% → Poor efficiency, significant atom waste
+• Atom Economy > 89% → ✅ Excellent incorporation of reactant mass — near-zero waste <br>
+• 80–89% → ✅ Very good incorporation of reactant mass — minimal waste <br>
+• 60–79% → ⚠️ Moderate incorporation of reactant mass — room for improvement <br>
+• 40–59% → 🚨 Poor incorporation of reactant mass — significant waste <br>
+• ≤ 39% → 🚨 Very poor incorporation of reactant mass — substantial loss <br>
 """
 
+
 AE_A_TIP = """
-• Atom Economy ≥ 75 % → Excellent, most atoms end up in the product <br>
-• Atom Economy 50–75 % → Moderate, some atoms are lost as by-products <br>
-• Atom Economy < 50 % → Poor, significant atom wastage
+• Atom Economy > 89% → ✅ Excellent — most atoms end up in the product <br>
+• 80–89% → ✅ Very good — minimal atoms lost as by-products <br>
+• 60–79% → ⚠️ Moderate — some atoms are lost as by-products <br>
+• 40–59% → 🚨 Poor — many atoms wasted as by-products <br>
+• ≤ 39% → 🚨 Very poor — significant atom wastage <br>
 """
+
 
 def title_with_icon(title: str, tip_html: str) -> str:
     """Return `title` followed by the hoverable ℹ icon."""
