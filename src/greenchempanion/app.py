@@ -5,9 +5,8 @@ from rdkit import Chem
 from rdkit.Chem import Draw
 from rdkit.Chem import Descriptors
 from streamlit_ketcher import st_ketcher
-
-from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E 
-from assessments import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, Atom_ec_m_assesment, logP_assessment_molecule, atoms_assessment, structural_assessment
+from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E, atoms_assessment, structural_assessment
+from assessments import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, Atom_ec_m_assesment, logP_assessment_molecule
 from app_utilities import (inject_base_css, show_info_box, html_box, tooltip_icon, missing_input_alert, dual_metric_box, title_with_icon, SOLVENT_TIP, LOGP_TIP, AA_TIP, SAA_TIP, E_FACTOR_TIP, PMI_TIP, AE_M_TIP, AE_A_TIP)
 
 

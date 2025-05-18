@@ -4,7 +4,6 @@ from rdkit.Chem import Descriptors
 from typing import Dict
 from rdkit.Chem import rdMolDescriptors
 from rdkit.DataStructs import TanimotoSimilarity
-from functions import Reaction
 
 
 def get_solvent_info(extras: Dict[Chem.Mol, float]) -> tuple[str, str]:
@@ -107,79 +106,3 @@ def logP_assessment_molecule(lo: float) -> tuple[str,str]:
     else:
         return f"🚨 LogP of {lo:.2f}, outside of acceptable limits, high concern", "#F03335"
 
-def atoms_assessment(react: Reaction) -> tuple[str,str]:
-    """
-    Warn if any risky elements are present in one of the products.
-    Returns (message, color_hex).
-    """
-    # Make the lookup O(1) by storing the elements in a set
-    RISKY_ATOMS = {
-        "F", "Cl", "Br", "I", "Li", "Ti", "Sn", "Pb", "Pd",
-        "Hg", "Cd", "As", "Cr", "Ni", "Se", "Tl", "Pt", "Rh",
-    }
-
-    risky_atoms = {
-        atom.GetSymbol()
-        for mol in react.products.keys()
-        for atom in mol.GetAtoms()
-        if atom.GetSymbol() in RISKY_ATOMS
-    }
-
-    if risky_atoms:
-        return f"⚠️ Concerning atoms: {', '.join(sorted(risky_atoms))}", "#F6DF7E"
-    else:
-        return "✅ All atoms are green", "#88DF66"
-
-
-def structural_assessment(react: Reaction) -> tuple[str,str]:
-    bad_smarts = {
-        "Carbon oxides":      ["O=C=O", "C#O"],
-        "Nitro-":             ["[N+](=O)[O-]", "O[N](=O)[O-]", "O=N[O-]", "[NX3+](=O)[O-,O]"],
-        "Azo-":               ["N=N"],
-        "Dichloro-aromatic":  ["c([Cl,Br])c.*c([Cl,Br])c"],
-    }
-
-    heavy_chain_flag = False
-    bad_groups      = set()
-
-    for mol in react.products.keys():
-        if sum(1 for a in mol.GetAtoms() if a.GetSymbol() != "H") > 10:
-            heavy_chain_flag = True
-
-        mol_fp = rdMolDescriptors.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)
-
-        for name, patterns in bad_smarts.items():
-            for sm in patterns:
-                ref = Chem.MolFromSmarts(sm)
-                if ref is None:
-                    continue
-
-                # guard 1: skip any SMARTS that can't be sanitized
-                try:
-                    Chem.SanitizeMol(ref)
-                except Exception:
-                    continue
-
-                if mol.HasSubstructMatch(ref):
-                    bad_groups.add(name)
-                    break
-                try:
-                    ref_fp = rdMolDescriptors.GetMorganFingerprintAsBitVect(ref, radius=2, nBits=2048)
-                    sim    = TanimotoSimilarity(ref_fp, mol_fp)
-                except Exception:
-                    continue
-
-                if sim > 0.15:
-                    bad_groups.add(f"Similarity to {name}")
-                    break
-
-    issues = []
-    if heavy_chain_flag:
-        issues.append("Presence of long heavy-atom chain(s)")
-    if bad_groups:
-        issues.append("Problematic groups: " + ", ".join(sorted(bad_groups)))
-
-    if issues:
-        return "⚠️ " + "; ".join(issues), "#F03335"
-    else:
-        return "✅ No structural red flags", "#88DF66"
