@@ -32,14 +32,16 @@ with st.expander("😊 SMILES to Molecule Converter"):
 
     if M2S_smiles:
         #Developers Easter Egg
-        if M2S_smiles == "VRMT":
+        if M2S_smiles == "VRMT"and not st.session_state.get("easter_egg_shown", False):
             st.balloons()
             st.snow()
             st.write("Easter Egg :o")
             st.image("../../assets/vrmt.png")
-
-
-        elif Chem.MolFromSmiles(M2S_smiles) is None:
+            st.session_state["easter_egg_shown"] = True
+        elif M2S_smiles != "VRMT":
+            st.session_state["easter_egg_shown"] = False
+            
+        if Chem.MolFromSmiles(M2S_smiles) is None:
             st.write("⚠️ Enter a valid SMILES format [e.g.: CCO]")
 
         else:
