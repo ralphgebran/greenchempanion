@@ -61,17 +61,17 @@ def tooltip_icon(text: str, body_html: str) -> str:
     </span>
     """
 
-def show_info_box(title: str, content: str, **kwargs) -> None:
-    # allow color=… as an alias for bg=…
-    if "color" in kwargs:
-        kwargs["bg"] = kwargs.pop("color")
+def show_info_box(title: str, content: str, color: str = "#f9f9f9", border: str = "#28a745") -> None:
+    """
+    Display a custom-styled info box using HTML in Streamlit.
 
-    border = kwargs.get("border", "#28a745")
-    bg     = kwargs.get("bg", "#f9f9f9")
-    #fg     = kwargs.get("fg", "#000000")
-
-    st.markdown(html_box(title, content, border, bg),
-                unsafe_allow_html=True)
+    Arguments:
+    - title: The title of the info box (can include tooltip icon).
+    - content: The main message text.
+    - color: The background color of the box.
+    - border: The border color of the box.
+    """
+    st.markdown(html_box(title, content, border, color), unsafe_allow_html=True)
 
 
 MISSING_INPUT_CSS = """

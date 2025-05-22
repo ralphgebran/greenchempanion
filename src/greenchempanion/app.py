@@ -521,26 +521,26 @@ if st.session_state.reactants and st.session_state.products:
     with col1:
         if st.session_state.extras:
             solv_text, solv_color = get_solvent_info(st.session_state.extras)
-            show_info_box(title_with_icon("🌱 Solvent Quality Check", SOLVENT_TIP), content=solv_text, color=solv_color)
+            show_info_box(title_with_icon("🌱 Solvent Quality Check", SOLVENT_TIP), content=solv_text, color=solv_color, border='#000')
         else:
             show_info_box("🌱 Solvent Quality Check",
               "Seems like no solvent was used. Nice Job!")
         Log_P = Descriptors.MolLogP(input_reaction.main_product)
         log_text, log_color = logP_assessment_molecule(Log_P)
-        show_info_box(title_with_icon("🌍 Main Product LogP", LOGP_TIP), content=log_text, color=log_color)
+        show_info_box(title_with_icon("🌍 Main Product LogP", LOGP_TIP), content=log_text, color=log_color, border='#000')
 
         a_ass_text, a_ass_color = atoms_assessment(input_reaction)
-        show_info_box(title_with_icon("🔎 Atom Assessment", AA_TIP), content=a_ass_text, color=a_ass_color)
+        show_info_box(title_with_icon("🔎 Atom Assessment", AA_TIP), content=a_ass_text, color=a_ass_color, border='#000')
 
         struct_text, struct_color = structural_assessment(input_reaction)
-        show_info_box(title_with_icon("🧬 Structural Attributes Analysis", SAA_TIP), content=struct_text, color=struct_color)
+        show_info_box(title_with_icon("🧬 Structural Attributes Analysis", SAA_TIP), content=struct_text, color=struct_color, border='#000')
 
     with col2:
         score_text, color = waste_efficiency(E_result)
-        show_info_box(title_with_icon("🚮 E-Factor: Waste Efficiency", E_FACTOR_TIP), content=score_text, color=color)
+        show_info_box(title_with_icon("🚮 E-Factor: Waste Efficiency", E_FACTOR_TIP), content=score_text, color=color, border='#000')
 
         pmi_text, pmi_color = PMI_assessment(PMI_result)
-        show_info_box(title_with_icon("🅿️ PMI",PMI_TIP), content=pmi_text, color=pmi_color)
+        show_info_box(title_with_icon("🅿️ PMI",PMI_TIP), content=pmi_text, color=pmi_color, border='#000')
 
         try:
             atom_economy_m_result = input_reaction.Atom_Economy_M()
