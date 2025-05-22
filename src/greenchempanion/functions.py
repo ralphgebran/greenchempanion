@@ -260,7 +260,6 @@ def structural_assessment(react: Reaction) -> tuple[str,str]:
                 if ref is None:
                     continue
 
-                # guard 1: skip any SMARTS that can't be sanitized
                 try:
                     Chem.SanitizeMol(ref)
                 except Exception:
