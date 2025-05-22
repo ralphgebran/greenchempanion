@@ -241,7 +241,7 @@ def structural_assessment(react: Reaction) -> tuple[str,str]:
     bad_smarts = {
         "Carbon oxides":      ["O=C=O", "C#O"],
         "Nitro-":             ["[N+](=O)[O-]", "O[N](=O)[O-]", "O=N[O-]", "[NX3+](=O)[O-,O]"],
-        "Azo-":               ["N=N"],
+        "Azo-":               ["N=N","[N-]=[N+]=[N-]"],
         "Dichloro-aromatic":  ["c([Cl,Br])c.*c([Cl,Br])c"],
     }
 

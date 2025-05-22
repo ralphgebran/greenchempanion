@@ -1,5 +1,5 @@
 from greenchempanion.functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E, atoms_assessment, structural_assessment
-from greenchempanion.assessments import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, Atom_ec_m_assesment, logP_assessment_molecule
+from greenchempanion.assessments import get_solvent_info, waste_efficiency, PMI_assessment, Atom_ec_assessment, Atom_ec_m_assessment, logP_assessment_molecule
 
 from rdkit import Chem
 from rdkit.Chem.rdchem import Mol
@@ -16,11 +16,11 @@ benzene = Chem.MolFromSmiles("c1ccccc1")
 
 def test_atomcount_ethanol():
     assert Atom_Count_With_H(ethanol) == 9, f"test_atomcount_ethanol failed: Expected output is 9 ; Actual output is {Atom_Count_With_H(ethanol)}"
-test_atomcount_ethanol()
+
 
 def test_atomcount_benzene():
     assert Atom_Count_With_H(benzene) == 12, f"test_atomcount_benzene failed: Expected output is 12 ; Actual output is {Atom_Count_With_H(benzene)}"
-test_atomcount_benzene()
+
 
 
 # TESTING canonicalization
@@ -44,13 +44,13 @@ def test_atomecon_a_methanecomb():
     result = methane_comb.Atom_Economy_A()
     expected = 33.33
     assert abs(result - expected) < 1e-2, f"test_atomecon_a_methanecomb failed: Expected output is 33.33 ; Actual output is {methane_comb.Atom_Economy_A()}"
-test_atomecon_a_methanecomb()
+
 
 def test_atomecon_m_methanecomb():
     result = methane_comb.Atom_Economy_M()
     expected = 55
     assert abs(result - expected) < 1e-1, f"test_atomecon_m_methanecomb failed: Expected output is 55 ; Actual output is {methane_comb.Atom_Economy_M()}"
-test_atomecon_m_methanecomb()
+
 
 
 
@@ -73,13 +73,12 @@ def test_pmi_sn():
     result = sn_reaction_pmi
     expected = 214
     assert abs(result - expected) < 1e-1, f"test_pmi_sn failed: Expected output is 214 ; Actual output is {sn_reaction_pmi}"
-test_pmi_sn()
+
 
 def test_e_sn():
     result = sn_reaction_e
     expected = 212.9
     assert abs(result - expected) < 1e-1, f"test_e_sn failed: Expected output is 212.9 ; Actual output is {sn_reaction_e}"
-test_e_sn()
 
 #Second Reaction
 butan_two_ol = Chem.MolFromSmiles("CCC(O)C")
@@ -95,13 +94,11 @@ def test_pmi_ox():
     result = ox_reaction_pmi
     expected = 40.2
     assert abs(result - expected) < 1e-1, f"test_pmi_ox failed: Expected output is 40.2 ; Actual output is {ox_reaction_pmi}"
-test_pmi_ox()
 
 def test_e_ox():
     result = ox_reaction_e
     expected = 39.1
     assert abs(result - expected) < 1e-1, f"test_e_ox failed: Expected output is 39.1 ; Actual output is {ox_reaction_e}"
-test_e_ox()
 
 
 # TESTING THE REACTION BALANCE METHOD
@@ -119,23 +116,18 @@ one_c_reaction = Reaction({Chem.MolFromSmiles("[C]"):2, dioxygen:1}, {carbon_dio
 
 def test_balance_iron_false():
     assert unbalanced_reaction.isBalanced() == False, f"test_balance_iron_false failed: Expected output is False ; Actual output is {unbalanced_reaction.isBalanced()}"
-test_balance_iron_false()
 
 def test_balance_iron_true():
     assert balanced_reaction.isBalanced() == True, f"test_balance_iron_true failed: Expected output is True ; Actual output is {balanced_reaction.isBalanced()}"
-test_balance_iron_true()
 
 def test_balance_methane():
     assert methane_comb.isBalanced() == True, f"test_balance_methane failed: Expected output is True ; Actual output is {methane_comb.isBalanced()}"
-test_balance_methane()
 
 def test_balance_nonsense():
     assert nonsense_reaction.isBalanced() == False, f"test_balance_nonsense failed: Expected output is False ; Actual output is {nonsense_reaction.isBalanced()}"
-test_balance_nonsense()
 
 def test_balance_one_c():
     assert one_c_reaction.isBalanced() == False, f"test_balance_one_c failed: Expected output is False ; Actual output is {nonsense_reaction.isBalanced()}"
-test_balance_one_c()
 
 
 def test_get_solvent_info_green():
@@ -148,18 +140,26 @@ def test_waste_efficiency_bad():
     assert "Bad" in verdict and color == "#F68B8C"
 
 def test_pmi_assessment_very_bad():
-    verdict, color = PMI_assesment(150)
+    verdict, color = PMI_assessment(150)
     assert "Very Bad" in verdict and color == "#F03335"
 
 def test_atom_ec_assessment_excellent():
-    verdict, color = Atom_ec_assesment(95)
+    verdict, color = Atom_ec_assessment(95)
     assert "Excellent" in verdict and color == "#4BAF24"
 
 def test_atom_ec_m_assessment_moderate():
-    verdict, color = Atom_ec_m_assesment(65)
+    verdict, color = Atom_ec_m_assessment(65)
     assert "Moderate" in verdict and color == "#F6DF7E"
 
 def test_logP_assessment_out_of_range():
     verdict, color = logP_assessment_molecule(5.5)
     assert "outside" in verdict and color == "#F03335"
     
+def test_atoms_assessment_sn_reaction():
+    msg, color = atoms_assessment(sn_reaction)
+    assert "I" in msg and color == "#F6DF7E"
+    
+def test_structural_assessment_sn_reaction():
+    msg, color = structural_assessment(sn_reaction)
+    assert "Azo-" in msg or "Problematic groups" in msg, f"Expected azide group to be flagged, got message: {msg}"
+    assert color == "#F03335"

@@ -6,7 +6,7 @@ from rdkit.Chem import Draw
 from rdkit.Chem import Descriptors
 from streamlit_ketcher import st_ketcher
 from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E, atoms_assessment, structural_assessment
-from assessments import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, Atom_ec_m_assesment, logP_assessment_molecule
+from assessments import get_solvent_info, waste_efficiency, PMI_assessment, Atom_ec_assessment, Atom_ec_m_assessment, logP_assessment_molecule
 from app_utilities import (inject_base_css, show_info_box, html_box, tooltip_icon, missing_input_alert, dual_metric_box, title_with_icon, 
                            SOLVENT_TIP, LOGP_TIP, AA_TIP, SAA_TIP, E_FACTOR_TIP, PMI_TIP, AE_M_TIP, AE_A_TIP)
 
@@ -500,14 +500,14 @@ if st.session_state.reactants and st.session_state.products:
         score_text, color = waste_efficiency(E_result)
         show_info_box(title_with_icon("🚮 E-Factor: Waste Efficiency", E_FACTOR_TIP), content=score_text, color=color)
 
-        pmi_text, pmi_color = PMI_assesment(PMI_result)
+        pmi_text, pmi_color = PMI_assessment(PMI_result)
         show_info_box(title_with_icon("🅿️ PMI",PMI_TIP), content=pmi_text, color=pmi_color)
 
         try:
             atom_economy_m_result = input_reaction.Atom_Economy_M()
             atom_economy_a_result = input_reaction.Atom_Economy_A()
-            ae_m_text, ae_m_color = Atom_ec_m_assesment(atom_economy_m_result)
-            ae_a_text, ae_a_color = Atom_ec_assesment(atom_economy_a_result)
+            ae_m_text, ae_m_color = Atom_ec_m_assessment(atom_economy_m_result)
+            ae_a_text, ae_a_color = Atom_ec_assessment(atom_economy_a_result)
 
             dual_metric_box(title_with_icon("⚖️ Atom Econ. (Molar Mass)", AE_M_TIP), ae_m_text, ae_m_color,
                 title_with_icon("⚛️ Atom Econ. (Atom no.)", AE_A_TIP), ae_a_text, ae_a_color)

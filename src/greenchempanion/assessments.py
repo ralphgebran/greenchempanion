@@ -45,7 +45,7 @@ def waste_efficiency(E : float) -> tuple[str,str] :
         return "🚨 Very Bad Waste Efficiency, must be improved 🚨","#F03335"
     
     
-def PMI_assesment(PMI : float) -> tuple[str,str] :
+def PMI_assessment(PMI : float) -> tuple[str,str] :
     """ Returns if the PMI factor is within normal ranges, along with a color hex code """
     if  PMI <= 10:
         return "Great Process Mass Intensity ✅","#88DF66"
@@ -57,7 +57,7 @@ def PMI_assesment(PMI : float) -> tuple[str,str] :
         return "🚨 Very Bad Process Mass Intensity, must be improved 🚨","#F03335"
     
     
-def Atom_ec_assesment(ae: float) -> tuple[str, str]:
+def Atom_ec_assessment(ae: float) -> tuple[str, str]:
     """
     Returns a qualitative assessment of Atom Economy (atom-count based),
     Returns a short explanation and a color code.
@@ -76,7 +76,7 @@ def Atom_ec_assesment(ae: float) -> tuple[str, str]:
         return "❓ Check input — AE > 100% not possible", "#AAAAAA"
 
 
-def Atom_ec_m_assesment(ae: float) -> tuple[str, str]:
+def Atom_ec_m_assessment(ae: float) -> tuple[str, str]:
     """
     Returns a qualitative assessment of Atom Economy (mass-based),
     returns a short explanation and a color code.
