@@ -348,11 +348,11 @@ with column2:
         col_btn, col_tip = st.columns([8, 1])
 
         with col_btn:
-            compute_e_clicked = st.button("Compute E factor", key="btn_e_factor")
+            compute_e_clicked = st.button("Compute E-factor", key="btn_e_factor")
  
         with col_tip:
             col_tip.markdown(
-                tooltip_icon("ℹ️",
+                tooltip_icon("ℹ",
                     """
                     <b>E factor (Environmental factor)</b> is the ratio of the total mass of all waste generated 
                     (side-products, solvents, auxiliaries, etc.) to the mass of desired product obtained.
@@ -362,8 +362,20 @@ with column2:
                     ),
                 unsafe_allow_html=True
             )
-        if compute_e_clicked :
-            st.success(f"🚮 E: **{E_result:.2f}**")
+        if "show_e" not in st.session_state:
+            st.session_state.show_e = False
+
+        if compute_e_clicked:
+            st.session_state.show_e = not st.session_state.show_e
+            if st.session_state.show_e:
+                st.session_state.e_result = E_result
+
+        if st.session_state.show_e:
+            st.success(f"🚮 E: **{st.session_state.e_result:.2f}**")
+        else:
+            st.session_state.pop("e_result", None)
+
+
     else:
         missing_input_alert(
         "Add at least one reactant and one product to compute E factor.",
@@ -403,7 +415,7 @@ with column2:
 
         with col_tip:
             col_tip.markdown(
-                tooltip_icon("ℹ️",
+                tooltip_icon("ℹ",
                     """
                     <b>Process Mass Intensity (PMI) </b> is the total mass of all materials
                     used in the process divided by the mass of product obtained.
@@ -412,8 +424,20 @@ with column2:
                     ),
                 unsafe_allow_html=True
             )
+
+        if "show_pmi" not in st.session_state:
+            st.session_state.show_pmi = False
+
         if compute_clicked_2:
-            st.success(f"🅿️ PMI: **{PMI_result:.2f}**")
+            st.session_state.show_pmi = not st.session_state.show_pmi
+            if st.session_state.show_pmi:
+                st.session_state.pmi_result = PMI_result
+
+        if st.session_state.show_pmi:
+            st.success(f"🅿️ PMI: **{st.session_state.pmi_result:.2f}**")
+        else:
+            st.session_state.pop("pmi_result", None)
+
 
     else:
         missing_input_alert(
@@ -447,21 +471,36 @@ with column2:
 
         with col_tip:
             col_tip.markdown(
-                tooltip_icon("ℹ️", 
+                tooltip_icon("ℹ", 
                         """<b>Atom Economy</b> is the percentage of the mass (or atoms) of reactants that ends up in the desired product. 
-                        Higher values (max 100%) indicate a greener reaction."
+                        Higher values (max 100%) indicate a greener reaction.
                         """),
                 unsafe_allow_html=True
             )
+        if "show_ae" not in st.session_state:
+            st.session_state.show_ae = False
+
         if compute_clicked:
-            try:
-                atom_economy_m_result = input_reaction.Atom_Economy_M()
-                atom_economy_a_result = input_reaction.Atom_Economy_A()
-                st.success(f"⚖️ Atom Economy based on Molar Mass: **{atom_economy_m_result:.2f}%**")
-                st.success(f"⚛️ Atom Economy based on Number of Atoms: **{atom_economy_a_result:.2f}%**")
-            except ValueError as e:
-                st.error(f"{e}", icon="🚨")
-                    
+            st.session_state.show_ae = not st.session_state.show_ae
+            if st.session_state.show_ae:
+                try:
+                    st.session_state.ae_m_result = input_reaction.Atom_Economy_M()
+                    st.session_state.ae_a_result = input_reaction.Atom_Economy_A()
+                except ValueError as e:
+                    st.session_state.ae_error = str(e)
+
+        if st.session_state.get("show_ae", False):
+            if "ae_error" in st.session_state:
+                st.error(st.session_state.ae_error, icon="🚨")
+            else:
+                st.success(f"⚖️ Atom Economy (Mass): **{st.session_state.ae_m_result:.2f}%**")
+                st.success(f"⚛️ Atom Economy (Atoms): **{st.session_state.ae_a_result:.2f}%**")
+        else:
+            st.session_state.pop("ae_m_result", None)
+            st.session_state.pop("ae_a_result", None)
+            st.session_state.pop("ae_error", None)
+
+
     else:  
         missing_input_alert(
         "Add at least one reactant and one product to compute Atom Economy.",
