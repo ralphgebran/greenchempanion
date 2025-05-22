@@ -47,7 +47,7 @@ If you need jupyter lab, install it
 $ pip install jupyterlab
 ```
 
-## 🔥 Features [MIAW MIAW PART NOT FINAL]
+## 🔥 Features
 GCP provides many tools for Green Chemistry purposes, through its python functions and integrated Streamlit applet.
 
 What GCP has to offer:

@@ -13,6 +13,7 @@ dependencies = [
     "streamlit",
     "streamlit-ketcher",
     "pandas"
+    "ipykernel"
 ]
 authors = [
     {name = "Ralph GEBRAN", email = "ralphgebran41@gmail.com"},
