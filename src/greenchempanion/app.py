@@ -7,7 +7,8 @@ from rdkit.Chem import Descriptors
 from streamlit_ketcher import st_ketcher
 from functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E, atoms_assessment, structural_assessment
 from assessments import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, Atom_ec_m_assesment, logP_assessment_molecule
-from app_utilities import (inject_base_css, show_info_box, html_box, tooltip_icon, missing_input_alert, dual_metric_box, title_with_icon, SOLVENT_TIP, LOGP_TIP, AA_TIP, SAA_TIP, E_FACTOR_TIP, PMI_TIP, AE_M_TIP, AE_A_TIP)
+from app_utilities import (inject_base_css, show_info_box, html_box, tooltip_icon, missing_input_alert, dual_metric_box, title_with_icon, 
+                           SOLVENT_TIP, LOGP_TIP, AA_TIP, SAA_TIP, E_FACTOR_TIP, PMI_TIP, AE_M_TIP, AE_A_TIP)
 
 
 st.set_page_config(page_title="GreenChemPanion", page_icon="../../assets/logo.ico", layout= "wide")
@@ -24,6 +25,7 @@ inject_base_css()
 st.markdown("---")
 
 st.header("💱 SMILES Converters", anchor="Converters")
+
 
 # SMILES TO MOLECULE IMAGE DISPLAY
 
@@ -64,7 +66,7 @@ def draw_and_get_smiles() -> str:
         str: The canonical SMILES of the drawn molecule.
     """
 
-    st.subheader("Draw Molecule and Get SMILES", anchor= False)
+    st.subheader("Draw Molecule And Get SMILES", anchor= False)
     molecule = ""
     if "ketcher_key" not in st.session_state:
         st.session_state.ketcher_key = 0
@@ -91,7 +93,7 @@ def draw_and_get_smiles() -> str:
             st.error(f"⚠️ Error parsing molecule: {e}")
             return ""
     if not ketcher_smiles :
-        st.info("🧪 Draw a molecule above to generate SMILES automatically!")
+        st.info("🧪 Draw a molecule above to generate its SMILES")
         return ""
 
 with st.expander("✏️ Drawn Molecule to SMILES Converter"):
@@ -119,7 +121,7 @@ if "extras" not in st.session_state:
 if "prod_yield" not in st.session_state:
     st.session_state.prod_yield = 1 # default to 100%
 
-#ADD MOLECULE EXPANDER
+# Add a Molecule Expander
 
 with st.expander("🧪 Add a Molecule"):
 
@@ -162,8 +164,7 @@ with st.expander("🧪 Add a Molecule"):
         else:
             st.error("⚠️ Enter a valid SMILES format [e.g.: CCO]", icon="🚨")
 
-
-#COMMON SOLVENT EXPANDER
+# Common solvent expander
 
 with st.expander("💧 Add a Common Solvent (as a volume input)"):
     st.info("ℹ️ Densities are considered at NTP Conditions (20 °C, 1 atm)")
@@ -198,8 +199,7 @@ with st.expander("💧 Add a Common Solvent (as a volume input)"):
             st.session_state.extras[S_mol] = solvent_mass
             st.success(f"Added solvent: {solvent_select} ({S_smiles}), {solvent_vol} L ({solvent_mass} g)")
 
-
-#SOLVENTS EXPANDER
+# Solvents expander
 
 with st.expander("🪣 Add extras (Yield, Solvents, Extraction material...)"):
 
@@ -230,6 +230,7 @@ with st.expander("🪣 Add extras (Yield, Solvents, Extraction material...)"):
     #YIELD input
     E_yield = st.number_input("Enter main product yield (%)", min_value=0.0, max_value=100.0, value =100.0, step = 0.01)
     st.session_state.prod_yield = E_yield/100
+
 
 # DISPLAY OF REACTION AND COMPUTATION OF GREEN FACTORS
 
@@ -373,7 +374,7 @@ with column2:
         as less waste is produced per kilogram of product.
         """
         )
-        
+
     # Compute PMI button only if both reactants and products are set
     if st.session_state.reactants and st.session_state.products:
         # Retrieve from session
@@ -446,7 +447,10 @@ with column2:
 
         with col_tip:
             col_tip.markdown(
-                tooltip_icon("ℹ️", "<b>Atom Economy</b> is the percentage of the mass (or atoms) of reactants that ends up in the desired product. Higher values (max 100%) indicate a greener reaction."),
+                tooltip_icon("ℹ️", 
+                        """<b>Atom Economy</b> is the percentage of the mass (or atoms) of reactants that ends up in the desired product. 
+                        Higher values (max 100%) indicate a greener reaction."
+                        """),
                 unsafe_allow_html=True
             )
         if compute_clicked:
@@ -461,7 +465,10 @@ with column2:
     else:  
         missing_input_alert(
         "Add at least one reactant and one product to compute Atom Economy.",
-        "<b>Atom Economy</b> is the percentage of the mass (or atoms) of reactants that ends up in the desired product. Higher values (max 100%) indicate a greener reaction."
+        """
+        <b>Atom Economy</b> is the percentage of the mass (or atoms) of reactants that ends up in the desired product. 
+        Higher values (max 100%) indicate a greener reaction."
+        """
         )
 
 
@@ -527,5 +534,3 @@ else:
         show_info_box(title_with_icon("🅿️ PMI", PMI_TIP),content="Add a Reaction!")
         dual_metric_box(title_with_icon("⚖️ Atom Econ. (Molar Mass)", AE_M_TIP),"Add a Reaction!","#f9f9f9",
             title_with_icon("⚛️ Atom Econ. (Atom no.)", AE_A_TIP), "Add a Reaction!", "#f9f9f9", "#28a745","#28a745","#000")
-
-    
