@@ -1,4 +1,5 @@
-from greenchempanion.functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E
+from greenchempanion.functions import Atom_Count_With_H, Reaction, compute_PMI, canonicalize_smiles, compute_E, atoms_assessment, structural_assessment
+from greenchempanion.assessments import get_solvent_info, waste_efficiency, PMI_assesment, Atom_ec_assesment, Atom_ec_m_assesment, logP_assessment_molecule
 
 from rdkit import Chem
 from rdkit.Chem.rdchem import Mol
@@ -135,3 +136,30 @@ test_balance_nonsense()
 def test_balance_one_c():
     assert one_c_reaction.isBalanced() == False, f"test_balance_one_c failed: Expected output is False ; Actual output is {nonsense_reaction.isBalanced()}"
 test_balance_one_c()
+
+
+def test_get_solvent_info_green():
+    mol = Chem.MolFromSmiles("O")
+    verdict, color = get_solvent_info({mol: 1.0})
+    assert "Green" in verdict and color == "#88DF66"
+
+def test_waste_efficiency_bad():
+    verdict, color = waste_efficiency(75)
+    assert "Bad" in verdict and color == "#F68B8C"
+
+def test_pmi_assessment_very_bad():
+    verdict, color = PMI_assesment(150)
+    assert "Very Bad" in verdict and color == "#F03335"
+
+def test_atom_ec_assessment_excellent():
+    verdict, color = Atom_ec_assesment(95)
+    assert "Excellent" in verdict and color == "#4BAF24"
+
+def test_atom_ec_m_assessment_moderate():
+    verdict, color = Atom_ec_m_assesment(65)
+    assert "Moderate" in verdict and color == "#F6DF7E"
+
+def test_logP_assessment_out_of_range():
+    verdict, color = logP_assessment_molecule(5.5)
+    assert "outside" in verdict and color == "#F03335"
+    
