@@ -12,7 +12,7 @@ dependencies = [
     "rdkit",
     "streamlit",
     "streamlit-ketcher",
-    "pandas"
+    "pandas",
     "ipykernel"
 ]
 authors = [
