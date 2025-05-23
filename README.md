@@ -47,6 +47,15 @@ If you need jupyter lab, install it
 $ pip install jupyterlab
 ```
 
+Optional: Using Conda Environments
+If you prefer using Conda for Python environments, you can create an empty environment before installing GCP as so:
+```
+conda create -n #your_env_name python=3.10
+conda activate #your_env_name
+```
+You can now proceed with the installation steps above, and use this environment to import GCP functions in any of your Python scripts or Jupyter notebooks!
+
+
 ## 🔥 Features
 GCP provides many tools for Green Chemistry purposes, through its python functions and integrated Streamlit applet.
 
