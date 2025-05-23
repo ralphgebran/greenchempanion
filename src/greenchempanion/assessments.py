@@ -10,8 +10,8 @@ def get_solvent_info(extras: Dict[Chem.Mol, float]) -> tuple[str, str]:
     """
     Given extras={Mol: mass_in_g_per_kg_product}, returns a short verdict + a color hex code (red/yellow/green).
     """
-    Green      = {"O", "CCO", "CC(=O)OCC", "CC1COCC1", "O=C=O", "CC(O)C", "CO"}
-    Bad        = {"ClCCl", "ClC(Cl)Cl", "c1ccccc1", "ClC(Cl)(Cl)Cl", "CCCCCC", "CCCCC"}
+    Green = {Chem.MolToSmiles(Chem.MolFromSmiles(smi)) for smi in ["O", "CCO", "CC(=O)OCC", "CC1COCC1", "O=C=O", "CC(O)C", "CO"]}
+    Bad = {Chem.MolToSmiles(Chem.MolFromSmiles(smi)) for smi in [ "ClCCl", "ClC(Cl)Cl", "c1ccccc1", "ClC(Cl)(Cl)Cl", "CCCCCC", "CCCCC"]}
     
     seen = {"Green": 0, "Acceptable": 0, "Bad": 0}
     for mol in extras:
@@ -24,9 +24,9 @@ def get_solvent_info(extras: Dict[Chem.Mol, float]) -> tuple[str, str]:
             seen["Acceptable"] += 1
 
     if seen["Bad"] > 0:
-        return "⚠️ Bad solvent detected!", "#F03335"
+        return "🚨 Bad solvent detected!", "#F03335"
     elif seen["Acceptable"] > 0:
-        return "⚠️ Adequate solvents detected.", "#F6DF7E"
+        return "⚠️ Unclassified solvents detected.", "#F6DF7E"
     else:
         return "✅ All solvents are Green!", "#88DF66"
 
