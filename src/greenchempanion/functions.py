@@ -242,7 +242,7 @@ def structural_assessment(react: Reaction) -> tuple[str,str]:
         "Carbon oxides":      ["O=C=O", "[C-]#[O+]"],
         "Nitro-":             ["[N+](=O)[O-]", "O[N](=O)[O-]", "O=N[O-]", "[NX3+](=O)[O-,O]"],
         "Azo-":               ["N=N", "[N-]=[N+]=[N-]"],
-        "Dihalogen-aromatic":  ["Clc1ccc(Cl)cc1", "Brc1ccc(Br)cc1", "Clc1ccccc1", "Brc1ccccc1", "Clc1ccc(Br)cc1", "Brc1ccc(Cl)cc1"]
+        "Dichloro/bromo-aromatic rings":  ["Clc1ccc(Cl)cc1", "Brc1ccc(Br)cc1", "Clc1ccccc1", "Brc1ccccc1", "Clc1ccc(Br)cc1", "Brc1ccc(Cl)cc1"]
     }
 
     heavy_chain_flag = False

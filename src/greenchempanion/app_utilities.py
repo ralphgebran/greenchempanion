@@ -1,8 +1,24 @@
+# This file aims to reduce redondancies in the app.py file to enhance the code clarity.
+
 import streamlit as st
 
+box_style = """
+<div style="
+    border: 2px solid {border};
+    border-radius: 10px;
+    padding: 20px;
+    margin: 10px;
+    background-color: {bg};
+    text-align: center;">
+    <h3 style="color:{title_color};">{title}</h3>
+    <p style="color:#000000;">{content}</p>
+</div>
+"""
 
 def inject_base_css() -> None:
-    """Put here every <style> block that should be loaded once."""
+    """
+    Applies wanted visual styling: layout width, button spacing, and tooltips to enable hovering for info boxes.
+    """
     st.markdown(
         """
         <style>
@@ -25,25 +41,10 @@ def inject_base_css() -> None:
         unsafe_allow_html=True,
     )
 
-box_style = """
-<div style="
-    border: 2px solid {border};
-    border-radius: 10px;
-    padding: 20px;
-    margin: 10px;
-    background-color: {bg};
-    text-align: center;">
-    <h3 style="color:{title_color};">{title}</h3>
-    <p style="color:#000000;">{content}</p>
-</div>
-"""
-
-
-def html_box(title: str, content: str,
-             border: str = "#28a745",
-             bg: str = "#f9f9f9",
-             fg: str = "#000000") -> str:
-    """Return a ready-to-embed HTML info box."""
+def html_box(title: str, content: str, border: str = "#28a745", bg: str = "#f9f9f9", fg: str = "#000000") -> str:
+    """
+    Return a ready to fill HTML info box.
+    """
     title_color = "#000000" if bg.lower() != "#f9f9f9" else border
     return box_style.format(
             title=title,
@@ -54,7 +55,9 @@ def html_box(title: str, content: str,
     )
 
 def tooltip_icon(text: str, body_html: str) -> str:
-    """Embed the little ℹ️ with a custom tooltip bubble."""
+    """
+    Equip the little ℹ with a custom tooltip info message.
+    """
     return f"""
     <span class="tooltip">{text}
         <span class="tooltiptext">{body_html}</span>
@@ -88,7 +91,9 @@ MISSING_INPUT_CSS = """
 """
 
 def missing_input_alert(message: str, tooltip_html: str) -> None:
-    """Green boxed “please add reactants” notice with hover tooltip."""
+    """
+    Missing input customisable notice with hover tooltip.
+    """
     st.markdown(MISSING_INPUT_CSS, unsafe_allow_html=True)
     st.markdown(f"""
     <div class="tooltip-wrapper">
@@ -141,26 +146,28 @@ LOGP_TIP = """
 
 AA_TIP = """
 • Checks reaction products for risky atoms (e.g., heavy metals, halogens). <br>
-• Flags presence of concerning elements (F, Cl, Br, Pb, Hg, etc.).
 """
 
 SAA_TIP = """
 Evaluates chemical reaction products for structural concerns by checking: <br>
 • Presence of long chains with more than 10 heavy atoms. <br>
 • Existence or similarity to problematic chemical groups such as <br>
-  carbon oxides, nitro groups, azo groups, or dichloro-aromatic groups.
+  carbon oxides, nitro groups, azo groups, or dihalogen-aromatic groups.
 """
 
 E_FACTOR_TIP = """
-• E factor ≤ 1 → Great, almost no waste generated <br>
-• E factor 1–5 → Good—manageable levels of waste typical for well-optimized processes <br>
-• E factor > 5 → Poor—significant waste, process needs improvement
+• E factor ≤ 1 → Great Waste Efficiency, with stellar E factor ✅ <br>
+• 1 < E ≤ 10 → Good Waste Efficiency ✅ <br>
+• 10 < E ≤ 50 → Average Waste Efficiency, could be improved ⚠️ <br>
+• 50 < E ≤ 100 → Bad Waste Efficiency, should be improved 🚨 <br>
+• E > 100 → 🚨 Very Bad Waste Efficiency, must be improved 🚨
 """
 
 PMI_TIP = """
-• PMI < 10 → Excellent material efficiency (very little waste) <br>
-• PMI 10–50 → Industry-average, acceptable but room for improvement <br>
-• PMI > 50 → High waste, low material efficiency
+• PMI ≤ 10 → Great material efficiency ✅ <br>
+• 10 < PMI ≤ 50 → Average efficiency, could be improved ⚠️ <br>
+• 50 < PMI ≤ 100 → Low efficiency, should be improved 🚨 <br>
+• PMI > 100 → Very poor efficiency, must be improved 🚨
 """
 
 AE_M_TIP = """
@@ -182,5 +189,5 @@ AE_A_TIP = """
 
 
 def title_with_icon(title: str, tip_html: str) -> str:
-    """Return `title` followed by the hoverable ℹ icon."""
+    """Return 'title' followed by the hoverable ℹ icon."""
     return f"{title} {tooltip_icon('ℹ', tip_html)}"
