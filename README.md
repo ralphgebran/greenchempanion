@@ -57,3 +57,9 @@ What GCP has to offer:
 - Compute the PMI and the E-factor of a given process (reaction + extra material used + yield) using `compute_PMI` and `compute_E` functions
 - Get a Green Chemistry assessment of your process (Potentially polluting atoms, groups and solvents in the reaction, logP  evaluation ...) on the Streamlit app.
 - ... and much more! You can find more details in the `report.ipynb` document.
+
+## **❓ Questions**
+
+*This package was made with ♥️ by Marc AL HACHEM, Ralph GEBRAN, Taïs THOMAS, and Valentine WIEN, for the EPFL CH-200 Practical Programming for Chemistry course in 2025.*
+
+For any questions, please contact `marc.alhachem@epfl.ch`, `ralph.gebran@epfl.ch`, `tais.thomas@epfl.ch` or `valentine.wien@epfl.ch`
