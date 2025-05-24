@@ -48,6 +48,7 @@ $ pip install jupyterlab
 ```
 
 Optional: Using Conda Environments
+
 If you prefer using Conda for Python environments, you can create an empty environment before installing GCP as so:
 ```
 conda create -n #your_env_name python=3.10
